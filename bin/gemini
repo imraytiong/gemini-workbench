@@ -11,6 +11,20 @@ if [ ! -f "$SB_PROFILE" ]; then
     exit 1
 fi
 
+# Check if any sessions exist for this project
+HAS_SESSIONS=$(/usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$GEMINI_BIN" --list-sessions 2>/dev/null | grep -c "\.")
+
+# Only prompt if there are sessions AND no --resume flag is already provided
+if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]]; then
+    echo -n "Would you like to resume the last session? [Y/n] "
+    read -r response
+    response=${response:-Y} # Default to Y if Enter is pressed
+
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        set -- "--resume" "latest" "$@"
+    fi
+fi
+
 # Run with sandbox-exec
 # -D HOME=$HOME sets the HOME parameter used in the .sb file
 /usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$GEMINI_BIN" "$@"
