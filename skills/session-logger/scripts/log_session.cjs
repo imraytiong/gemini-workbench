@@ -55,14 +55,22 @@ function getDailyAggregation(logFilePath, dateStr) {
         const titleLine = entry.split('\n')[0];
         const title = titleLine.replace(/\[.*?\] /, '').trim();
         
-        const summaryPart = entry.split('### Summary')[1];
-        const tasksPart = entry.split('### Pending Tasks')[1];
+        const planPart = entry.split('### 📋 Proposed Plan')[1];
+        const validationPart = entry.split('### ✅ Execution & Validation')[1];
+        const summaryPart = entry.split('### 📝 Summary')[1];
+        const tasksPart = entry.split('### ⏳ Pending Tasks')[1];
         
         if (summaryPart && tasksPart) {
-            const summaryText = summaryPart.split('### Pending Tasks')[0].trim();
+            const planText = planPart ? planPart.split('###')[0].trim() : "";
+            const validationText = validationPart ? validationPart.split('###')[0].trim() : "";
+            const summaryText = summaryPart.split('### ⏳ Pending Tasks')[0].trim();
             const tasksText = tasksPart.split('---')[0].trim();
             
-            combinedSummary += `### ${title}\n${summaryText}\n\n`;
+            combinedSummary += `### ${title}\n`;
+            if (planText) combinedSummary += `#### 📋 Proposed Plan\n${planText}\n\n`;
+            if (validationText) combinedSummary += `#### ✅ Execution & Validation\n${validationText}\n\n`;
+            combinedSummary += `#### 📝 Summary\n${summaryText}\n\n`;
+            
             combinedTasks += `#### From ${title}\n${tasksText}\n\n`;
         }
     });
@@ -73,18 +81,34 @@ function getDailyAggregation(logFilePath, dateStr) {
     };
 }
 
-function logSession(title, summary, tasks) {
+function logSession(title, summary, tasks, plan = "", outcome = "") {
     const timestamp = getTimestamp();
     const dateStr = new Date().toLocaleDateString();
     
-    const historyEntry = `
+    let historyEntry = `
 ## [${dateStr}] ${title}
 **Timestamp:** \`${timestamp}\`
+`;
 
-### Summary
+    if (plan) {
+        historyEntry += `
+### 📋 Proposed Plan
+${plan}
+`;
+    }
+
+    if (outcome) {
+        historyEntry += `
+### ✅ Execution & Validation
+${outcome}
+`;
+    }
+
+    historyEntry += `
+### 📝 Summary
 ${summary}
 
-### Pending Tasks
+### ⏳ Pending Tasks
 ${tasks}
 
 ---
@@ -147,8 +171,8 @@ ${latestTasks}
 
 const args = process.argv.slice(2);
 if (args.length < 3) {
-    console.log('Usage: node log_session.cjs "<title>" "<summary>" "<tasks>"');
+    console.log('Usage: node log_session.cjs "<title>" "<summary>" "<tasks>" ["<plan>"] ["<outcome>"]');
     process.exit(1);
 }
 
-logSession(args[0], args[1], args[2]);
+logSession(args[0], args[1], args[2], args[3], args[4]);
