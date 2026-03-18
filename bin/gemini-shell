@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Gemini Shell Wrapper
+# Ensures the Podman machine and container are running before entering.
+
+MACHINE="podman-machine-default"
+CONTAINER="gemini-sandbox-container"
+PODMAN="/opt/podman/bin/podman"
+
+# 1. Check if Podman machine is running
+STATUS=$($PODMAN machine inspect $MACHINE --format "{{.State}}" 2>/dev/null)
+
+if [ "$STATUS" != "running" ]; then
+    echo "Starting Podman machine ($MACHINE)..."
+    $PODMAN machine start
+fi
+
+# 2. Check if the sandbox container exists and is running
+if ! $PODMAN ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
+    echo "Error: $CONTAINER not found. Please re-run the sandbox setup."
+    exit 1
+fi
+
+if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
+    echo "Starting $CONTAINER..."
+    $PODMAN start $CONTAINER
+fi
+
+# 3. Enter the shell
+$PODMAN exec -it -w /home/raytiong/projects $CONTAINER /bin/bash

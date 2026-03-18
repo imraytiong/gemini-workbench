@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Gemini CLI Wrapper
+# Passes any commands directly to the gemini tool inside the sandbox.
+
+MACHINE="podman-machine-default"
+CONTAINER="gemini-sandbox-container"
+PODMAN="/opt/podman/bin/podman"
+
+# Ensure Podman machine and container are running
+STATUS=$($PODMAN machine inspect $MACHINE --format "{{.State}}" 2>/dev/null)
+if [ "$STATUS" != "running" ]; then
+    echo "Starting Podman machine ($MACHINE)..."
+    $PODMAN machine start
+fi
+
+if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
+    echo "Starting $CONTAINER..."
+    $PODMAN start $CONTAINER
+fi
+
+# Run the command
+$PODMAN exec -it -w /home/raytiong/projects $CONTAINER gemini "$@"
