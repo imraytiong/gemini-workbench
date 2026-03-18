@@ -1,6 +1,17 @@
 # Gemini Session History
 
 
+## [3/18/2026] Skill Migration Complete
+**Timestamp:** `2026-03-18 22:58`
+
+### Summary
+Successfully moved session-logger to gemini-workbench/skills and established a symbolic link for global CLI access. Verified that the logger still correctly detects the project Git root.
+
+### Pending Tasks
+Next: Develop the Project Scaffolder skill.
+
+---
+
 ## [3/18/2026] Session Closure: Podman to Gemini Workbench
 **Timestamp:** `2026-03-18 22:56`
 
