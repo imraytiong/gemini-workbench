@@ -2,6 +2,7 @@ FROM ubuntu:24.04
 
 # Avoid prompts
 ENV DEBIAN_FRONTEND=noninteractive
+ENV GEMINI_SANDBOX=1
 
 # Update and install core tools
 RUN apt-get update && apt-get install -y \
