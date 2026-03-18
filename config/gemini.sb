@@ -11,6 +11,7 @@
 (allow mach-lookup)
 (allow iokit-open)
 (allow ipc-posix-shm)
+(allow file-ioctl)
 
 ;; Filesystem: Allow general read access for system and libraries
 (allow file-read*)
