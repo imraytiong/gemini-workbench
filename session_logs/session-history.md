@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/18/2026] Sandbox Profile TTY Fix
+**Timestamp:** `2026-03-18 23:35`
+
+### 📋 Proposed Plan
+1. Add file-ioctl to .sb. 2. Verify with gemini --resume. 3. Confirm fix.
+
+### ✅ Execution & Validation
+SUCCESS: TTY and Keychain errors are resolved.
+
+### 📝 Summary
+Updated gemini.sb with file-ioctl and broader mach-lookup permissions to resolve setRawMode EPERM and Keychain initialization errors. Verified session resumption now works natively.
+
+### ⏳ Pending Tasks
+None.
+
+---
+
 ## [3/18/2026] Logger Enhancement Finalized
 **Timestamp:** `2026-03-18 23:24`
 
