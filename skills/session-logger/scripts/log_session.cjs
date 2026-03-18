@@ -134,7 +134,7 @@ ${latestTasks}
         // If in a Git repository, stage and commit the changes
         if (GIT_ROOT) {
             process.chdir(GIT_ROOT);
-            execSync(`git add "${path.relative(GIT_ROOT, LOG_FILE)}" "${path.relative(GIT_ROOT, LATEST_FILE)}"`);
+            execSync(`git add -f "${path.relative(GIT_ROOT, LOG_FILE)}" "${path.relative(GIT_ROOT, LATEST_FILE)}"`);
             execSync(`git commit -m "docs: session log - ${title}"`);
         }
 
