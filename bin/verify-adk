@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# ADK Verification Script
+# Checks the health of the Agent Development Kit inside the sandbox.
+
+CONTAINER="gemini-sandbox-container"
+PODMAN="/opt/podman/bin/podman"
+
+echo "--- Gemini ADK Verification ---"
+
+# 1. Check if container is running
+if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
+    echo "[FAIL] Sandbox container is not running."
+    exit 1
+fi
+echo "[OK] Sandbox container is active."
+
+# 2. Check runtimes
+echo -n "[RUNTIMES] Node: "
+$PODMAN exec $CONTAINER node --version
+echo -n "[RUNTIMES] Python: "
+$PODMAN exec $CONTAINER python3 --version
+
+# 3. Check Gemini CLI
+echo -n "[CLI] Gemini version: "
+$PODMAN exec $CONTAINER gemini --version
+
+# 4. Check ADK Core
+CORE_PATH="/usr/lib/node_modules/@google/gemini-cli/node_modules/@google/gemini-cli-core"
+if $PODMAN exec $CONTAINER ls -d $CORE_PATH >/dev/null 2>&1; then
+    echo "[OK] @google/gemini-cli-core found."
+else
+    echo "[FAIL] @google/gemini-cli-core not found."
+fi
+
+echo "--- Verification Complete ---"
