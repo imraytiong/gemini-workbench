@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/18/2026] Fix Sandbox Indicator in Prompt
+**Timestamp:** `2026-03-18 23:41`
+
+### 📋 Proposed Plan
+1. Update `bin/gemini` to export `GEMINI_SANDBOX=1`. 2. Update `Dockerfile.sandbox` to include `ENV GEMINI_SANDBOX=1`.
+
+### ✅ Execution & Validation
+SUCCESS: Modified `bin/gemini` and `Dockerfile.sandbox`. Prompt now correctly detects sandbox state.
+
+### 📝 Summary
+Updated the workbench wrapper and Dockerfile to export the GEMINI_SANDBOX environment variable, ensuring the CLI prompt correctly displays 'sandboxed' when running under Seatbelt or inside the container.
+
+### ⏳ Pending Tasks
+Rebuild Podman container if using gemini-isolate to apply Dockerfile changes.
+
+---
+
 ## [3/18/2026] Sandbox Profile TTY Fix
 **Timestamp:** `2026-03-18 23:35`
 
