@@ -1,0 +1,37 @@
+;; Gemini CLI Seatbelt Profile
+;; Provides a native macOS sandbox with restricted filesystem access.
+
+(version 1)
+(deny default)
+
+;; Allow basic operations
+(allow process-fork)
+(allow process-exec)
+(allow sysctl*)
+(allow mach-lookup)
+(allow iokit-open)
+(allow ipc-posix-shm)
+
+;; Filesystem: Allow general read access for system and libraries
+(allow file-read*)
+
+;; Allow access to standard devices
+(allow file-read* file-write*
+       (path "/dev/null")
+       (path "/dev/tty")
+       (path "/dev/stdin")
+       (path "/dev/stdout")
+       (path "/dev/stderr")
+       (path "/dev/zero")
+       (path "/dev/random")
+       (path "/dev/urandom"))
+
+;; Filesystem: Restricted write access
+(allow file-write* (subpath "/private/var/folders"))
+(allow file-write* (subpath "/tmp"))
+(allow file-write* (subpath (string-append (param "HOME") "/.gemini")))
+(allow file-write* (subpath (string-append (param "HOME") "/projects")))
+
+;; Network
+(allow network-outbound)
+(allow network-inbound (local ip "localhost:*"))

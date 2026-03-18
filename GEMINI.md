@@ -3,9 +3,10 @@
 This project serves as the centralized configuration and development hub for all Gemini CLI activities.
 
 ## Core Mandates
-- **Standardized Environment:** Use the `Dockerfile.sandbox` for all Ubuntu-based containerized operations.
+- **Native Sandboxing:** Use macOS Seatbelt (`sandbox-exec`) by default for lightweight, native protection.
+- **Isolated Sandboxing:** Use `gemini-isolate` for full Ubuntu containerized isolation when necessary.
 - **Unified Logging:** All sessions in this project are logged to the local `session_logs/` directory.
-- **Centralized Binaries:** Custom wrappers and tools are located in `bin/` and should be added to the host's `PATH`.
+- **Centralized Binaries:** Custom wrappers (`gemini`, `gemini-shell`, `gemini-isolate`) are located in `bin/` and added to the host's `PATH`.
 
 ## Project Structure
 - `bin/`: Host scripts and CLI wrappers.

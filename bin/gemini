@@ -1,23 +1,16 @@
 #!/bin/bash
 
-# Gemini CLI Wrapper
-# Passes any commands directly to the gemini tool inside the sandbox.
+# Gemini CLI Wrapper (Seatbelt Native Sandbox)
+# Default security: macOS Seatbelt (sandbox-exec)
 
-MACHINE="podman-machine-default"
-CONTAINER="gemini-sandbox-container"
-PODMAN="/opt/podman/bin/podman"
+SB_PROFILE="$HOME/projects/gemini-workbench/config/gemini.sb"
+GEMINI_BIN="/Users/raytiong/.nvm/versions/node/v24.11.0/bin/gemini"
 
-# Ensure Podman machine and container are running
-STATUS=$($PODMAN machine inspect $MACHINE --format "{{.State}}" 2>/dev/null)
-if [ "$STATUS" != "running" ]; then
-    echo "Starting Podman machine ($MACHINE)..."
-    $PODMAN machine start
+if [ ! -f "$SB_PROFILE" ]; then
+    echo "Error: Seatbelt profile not found at $SB_PROFILE"
+    exit 1
 fi
 
-if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
-    echo "Starting $CONTAINER..."
-    $PODMAN start $CONTAINER
-fi
-
-# Run the command
-$PODMAN exec -it -w /home/raytiong/projects $CONTAINER gemini "$@"
+# Run with sandbox-exec
+# -D HOME=$HOME sets the HOME parameter used in the .sb file
+/usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$GEMINI_BIN" "$@"
