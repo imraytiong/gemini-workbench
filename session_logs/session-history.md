@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/18/2026] Enable Default YOLO Mode
+**Timestamp:** `2026-03-18 23:43`
+
+### 📋 Proposed Plan
+Add `--approval-mode yolo` to the `sandbox-exec` command in `bin/gemini`.
+
+### ✅ Execution & Validation
+SUCCESS: `bin/gemini` updated. YOLO mode is now the default for this workbench.
+
+### 📝 Summary
+Updated the  wrapper script to use  by default, leveraging the existing Seatbelt sandbox for security while removing manual tool-call approvals.
+
+### ⏳ Pending Tasks
+Observe the more fluid interaction in future sessions.
+
+---
+
 ## [3/18/2026] Fix Sandbox Indicator in Prompt
 **Timestamp:** `2026-03-18 23:41`
 
