@@ -1,6 +1,17 @@
 # Gemini Session History
 
 
+## [3/18/2026] Session Resumption Feature
+**Timestamp:** `2026-03-18 23:19`
+
+### Summary
+Refactored gemini and gemini-isolate wrappers to proactively offer session resumption. Added logic to detect previous sessions and prompt the user with a 'Y' default.
+
+### Pending Tasks
+Verify the prompt behavior across different projects.
+
+---
+
 ## [3/18/2026] Native Sandbox Migration
 **Timestamp:** `2026-03-18 23:18`
 
