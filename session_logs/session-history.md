@@ -1,6 +1,17 @@
 # Gemini Session History
 
 
+## [3/18/2026] Native Sandbox Migration
+**Timestamp:** `2026-03-18 23:18`
+
+### Summary
+Refactored the workbench to use macOS Seatbelt (sandbox-exec) as the default security layer. Introduced gemini-isolate for Podman-based isolation and configured the gemini.sb profile for secure native execution.
+
+### Pending Tasks
+Refine Seatbelt profile permissions as new tools are introduced.
+
+---
+
 ## [3/18/2026] Final Workbench Consolidation
 **Timestamp:** `2026-03-18 23:00`
 
