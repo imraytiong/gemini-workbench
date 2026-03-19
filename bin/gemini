@@ -4,7 +4,9 @@
 # Default security: macOS Seatbelt (sandbox-exec)
 
 SB_PROFILE="$HOME/projects/gemini-workbench/config/gemini.sb"
-GEMINI_BIN="/Users/raytiong/.nvm/versions/node/v24.11.0/bin/gemini"
+# Points directly to the Node binary and JS entry point to avoid shebang/env issues
+NODE_BIN="/Users/raytiong/.nvm/versions/node/v24.11.0/bin/node"
+GEMINI_JS="/Users/raytiong/.nvm/versions/node/v24.11.0/lib/node_modules/@google/gemini-cli/dist/index.js"
 
 if [ ! -f "$SB_PROFILE" ]; then
     echo "Error: Seatbelt profile not found at $SB_PROFILE"
@@ -13,15 +15,12 @@ fi
 
 # Detect if we are ALREADY in a sandboxed session to avoid recursion errors
 if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ]; then
-    # We are already in a sandboxed session, skip re-sandboxing
-    "$GEMINI_BIN" "$@"
+    "$NODE_BIN" "$GEMINI_JS" "$@"
     exit $?
 fi
 
-# 1. Check if any sessions exist for this project
-# We use a temporary non-sandboxed check or just trust the binary
-# Actually, for the check we can just run it without sandbox or with it if it's not recursive
-HAS_SESSIONS=$("$GEMINI_BIN" --list-sessions 2>/dev/null | grep -c "\.")
+# 1. Check if any sessions exist for this project (Fast, non-sandboxed check)
+HAS_SESSIONS=$("$NODE_BIN" "$GEMINI_JS" --list-sessions 2>/dev/null | grep -c "\.")
 
 # 2. Only prompt if sessions exist and no --resume flag is already provided
 if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]]; then
@@ -35,6 +34,5 @@ if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]]; then
 fi
 
 # 3. Run with sandbox-exec
-# -D HOME=$HOME sets the HOME parameter used in the .sb file
 export GEMINI_SANDBOX=1
-/usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$GEMINI_BIN" --approval-mode yolo "$@"
+/usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$NODE_BIN" "$GEMINI_JS" --approval-mode yolo "$@"
