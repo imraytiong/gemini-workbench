@@ -1,13 +1,2 @@
-;; Gemini CLI Inverted Sandbox Profile (macOS Modern Compatibility)
 (version 1)
 (allow default)
-
-;; Explicitly DENY access to highly sensitive areas
-(deny file* (subpath (string-append (param "HOME") "/.ssh")))
-(deny file* (subpath (string-append (param "HOME") "/.gnupg")))
-(deny file* (subpath (string-append (param "HOME") "/Documents")))
-(deny file* (subpath (string-append (param "HOME") "/Desktop")))
-(deny file* (subpath (string-append (param "HOME") "/Downloads")))
-
-;; Allow network access
-(allow network*)
