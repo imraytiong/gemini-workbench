@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/18/2026] Sandbox Recursion & Settings Fix
+**Timestamp:** `2026-03-19 01:14`
+
+### 📋 Proposed Plan
+1. Add recursion check. 2. Fix settings.json enum. 3. Verify on host.
+
+### ✅ Execution & Validation
+SUCCESS: Wrappers are now recursion-safe and settings are valid.
+
+### 📝 Summary
+Resolved the 'Operation not permitted' error by making the gemini wrapper detect if it's already in a sandboxed session. Also fixed an invalid 'yolo' approval mode in settings.json.
+
+### ⏳ Pending Tasks
+Ensure other wrappers handle nested calls if needed.
+
+---
+
 ## [3/18/2026] Enhanced Session Logging
 **Timestamp:** `2026-03-19 01:10`
 
