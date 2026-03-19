@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/18/2026] Restored Sandbox and Fixed Permissions
+**Timestamp:** `2026-03-19 01:40`
+
+### 📋 Proposed Plan
+1. Identify the 'Operation not permitted' failure point. 2. Verify Node.js binary runs inside the sandbox. 3. Update bin/gemini to use the direct path.
+
+### ✅ Execution & Validation
+SUCCESS: gemini --version and --help now run correctly under the Seatbelt sandbox.
+
+### 📝 Summary
+Fixed the 'Operation not permitted' error by targeting the direct Node.js binary path instead of the npm-generated shell script middleman. Restored Seatbelt sandboxing and verified it runs flawlessly with our latest YOLO configuration.
+
+### ⏳ Pending Tasks
+Observe the stable sandbox performance.
+
+---
+
 ## [3/18/2026] Direct Node Invocation Fix
 **Timestamp:** `2026-03-19 01:21`
 
