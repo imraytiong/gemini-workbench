@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/18/2026] Enhanced Session Logging
+**Timestamp:** `2026-03-19 01:10`
+
+### 📋 Proposed Plan
+1. Modify  to accept and process . 2. Update  template to include the new section.
+
+### ✅ Execution & Validation
+SUCCESS: Script updated and verified. Latest summary now includes actionable next steps.
+
+### 📝 Summary
+Updated the  script to support a 6th argument for 'Suggested Next Steps'. These steps are now dynamically added to the bottom of the  file to provide a quick prompt for future context recovery.
+
+### ⏳ Pending Tasks
+Use the new argument in future logs.
+
+---
+
 ## [3/18/2026] Advanced Environment Configuration
 **Timestamp:** `2026-03-19 01:08`
 
