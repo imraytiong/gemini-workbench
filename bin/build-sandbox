@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Gemini Workbench: Build Sandbox Image
+# Standardizes the creation of the Ubuntu-based isolation environment.
+
+IMAGE_NAME="gemini-sandbox"
+DOCKERFILE="Dockerfile.sandbox"
+PODMAN="podman" # Assume it's in the PATH on the host
+
+# Check if we are in the right directory
+if [ ! -f "$DOCKERFILE" ]; then
+    echo "Error: $DOCKERFILE not found in the current directory."
+    exit 1
+fi
+
+# Detect host architecture for tagging if needed, but keep it simple for now
+echo "Building $IMAGE_NAME..."
+
+# Use Podman to build the image
+$PODMAN build \
+    --tag $IMAGE_NAME:latest \
+    --build-arg USER_UID=$(id -u) \
+    --build-arg USER_GID=$(id -g) \
+    -f $DOCKERFILE .
+
+echo "Build complete. You can now use 'gemini-isolate' or 'gemini' to run sessions in this environment."

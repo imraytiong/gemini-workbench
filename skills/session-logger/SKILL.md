@@ -13,10 +13,13 @@ When the user asks to "log this session," "save our work," or "checkpoint," foll
 
 1.  **Synthesize:** Create a clear, technical summary of what was accomplished in the current session and a list of specific, actionable pending tasks.
 2.  **Execute Logger:** Use the `scripts/log_session.cjs` script to update the Obsidian vault.
-    - **Command:** `node <path-to-skill>/scripts/log_session.cjs "<Title>" "<Summary>" "<Tasks>"`
+    - **Command:** `node <path-to-skill>/scripts/log_session.cjs "<Title>" "<Summary>" "<Tasks>" ["<Plan>"] ["<Outcome>"] ["<NextSteps>"]`
     - **Title:** A concise name for the current work block (e.g., "Meta-workflow Setup").
     - **Summary:** A bulleted list or paragraph of technical accomplishments.
     - **Tasks:** A bulleted list of items for the next session.
+    - **Plan (Optional):** The proposed strategy for the session.
+    - **Outcome (Optional):** The execution and validation details.
+    - **NextSteps (Optional):** Actionable items to be highlighted in the daily summary.
 3.  **Confirm:** Tell the user the vault has been updated and the changes committed to Git.
 
 ## Context Recovery

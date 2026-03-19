@@ -3,39 +3,79 @@
 # Gemini CLI Isolate Wrapper (Podman Container)
 # High security: Full Ubuntu container isolation.
 
-MACHINE="podman-machine-default"
+IMAGE_NAME="gemini-sandbox"
 CONTAINER="gemini-sandbox-container"
-PODMAN="/opt/podman/bin/podman"
+PROJECTS_DIR="/home/raytiong/projects"
 
 # Detect if we are ALREADY in a sandboxed session to avoid recursion errors
 if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
     # We are already in an isolated session, run the local gemini instead of trying to isolate again
-    gemini "$@"
-    exit $?
-fi
-if [ "$STATUS" != "running" ]; then
-    echo "Starting Podman machine ($MACHINE)..."
-    $PODMAN machine start
+    exec gemini "$@"
 fi
 
+# Detect Podman path
+PODMAN=$(which podman 2>/dev/null || echo "/opt/podman/bin/podman")
+
+# 1. Ensure Podman machine is running (on macOS/Windows)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    MACHINE="podman-machine-default"
+    STATUS=$($PODMAN machine inspect $MACHINE --format "{{.State}}" 2>/dev/null)
+    if [ "$STATUS" != "running" ]; then
+        echo "Starting Podman machine ($MACHINE)..."
+        $PODMAN machine start
+    fi
+fi
+
+# 2. Ensure the container exists
+if ! $PODMAN ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
+    echo "Creating $CONTAINER from $IMAGE_NAME..."
+    
+    # Check if image exists
+    if ! $PODMAN image exists $IMAGE_NAME; then
+        echo "Error: Image $IMAGE_NAME not found. Run 'bin/build-sandbox' first."
+        exit 1
+    fi
+
+    # Create the container but don't start it yet
+    $PODMAN create --name $CONTAINER \
+        -v $PROJECTS_DIR:$PROJECTS_DIR \
+        -w $PROJECTS_DIR \
+        -e GEMINI_SANDBOX=1 \
+        -e SANDBOX=podman \
+        -it $IMAGE_NAME
+fi
+
+# 3. Ensure the container is running
 if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
     echo "Starting $CONTAINER..."
     $PODMAN start $CONTAINER
 fi
 
-# Check for existing sessions inside the container
+# 4. Check for existing sessions inside the container
 HAS_SESSIONS=$($PODMAN exec $CONTAINER gemini --list-sessions 2>/dev/null | grep -c "\.")
 
-# Only prompt if sessions exist and no --resume flag is present
-if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]]; then
-    echo -n "Would you like to resume the last session? [Y/n] "
+# 5. Restore logic: (S)ummary [Default] / (p)erfect / (n)o
+if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]] && [[ ! "$*" == *"--prompt"* ]]; then
+    echo -n "Restore session? [(S)ummary / (p)erfect / (n)o] "
     read -r response
-    response=${response:-Y} # Default to Y if Enter is pressed
+    response=${response:-S}
 
-    if [[ "$response" =~ ^[Yy]$ ]]; then
-        set -- "--resume" "latest" "$@"
-    fi
+    case "$response" in
+        [Pp]*)
+            echo "Restoring perfect memory (native resume)..."
+            set -- "--resume" "latest" "$@"
+            ;;
+        [Nn]*)
+            echo "Starting fresh session..."
+            ;;
+        *)
+            echo "Restoring from daily summary (clean slate + logs)..."
+            SUMMARY_PROMPT="Please read gemini-workbench/session_logs/latest-session.md to recover the context of our last session. Acknowledge the current status and suggest the first task from the 'Consolidated Pending Tasks' list."
+            set -- "--prompt-interactive" "$SUMMARY_PROMPT" "$@"
+            ;;
+    esac
 fi
 
-# Run the command inside the Linux container
-$PODMAN exec -it -w /home/raytiong/projects $CONTAINER gemini --approval-mode yolo "$@"
+# 6. Run the command inside the Linux container
+export COLORTERM=truecolor
+exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w $PROJECTS_DIR $CONTAINER gemini "$@"

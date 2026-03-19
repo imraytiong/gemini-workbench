@@ -1,44 +1,13 @@
 #!/bin/bash
 
-# Gemini CLI Wrapper (Podman Isolation)
-# High security: Full Ubuntu container isolation via Podman.
+# Gemini Workbench: Default Wrapper
+# Directs all workbench sessions to the isolated Podman environment.
 
-MACHINE="podman-machine-default"
-CONTAINER="gemini-sandbox-container"
-PODMAN="/opt/podman/bin/podman"
-
-# Detect if we are ALREADY in a sandboxed session to avoid recursion errors
+# If we are already in the sandbox, just run the local gemini
 if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
-    # We are already in an isolated session, run the local gemini instead of trying to isolate again
+    export SANDBOX="podman"
     exec gemini "$@"
 fi
 
-# 1. Ensure Podman machine and container are running
-STATUS=$($PODMAN machine inspect $MACHINE --format "{{.State}}" 2>/dev/null)
-if [ "$STATUS" != "running" ]; then
-    echo "Starting Podman machine ($MACHINE)..."
-    $PODMAN machine start
-fi
-
-if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
-    echo "Starting $CONTAINER..."
-    $PODMAN start $CONTAINER
-fi
-
-# 2. Check for existing sessions inside the container
-HAS_SESSIONS=$($PODMAN exec $CONTAINER gemini --list-sessions 2>/dev/null | grep -c "\.")
-
-# 3. Only prompt if sessions exist and no --resume flag is present
-if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]]; then
-    echo -n "Would you like to resume the last session? [Y/n] "
-    read -r response
-    response=${response:-Y}
-
-    if [[ "$response" =~ ^[Yy]$ ]]; then
-        set -- "--resume" "latest" "$@"
-    fi
-fi
-
-# 4. Run the command inside the Linux container
-export GEMINI_SANDBOX=1
-exec $PODMAN exec -it -w /home/raytiong/projects $CONTAINER gemini --approval-mode yolo "$@"
+# Otherwise, delegate to gemini-isolate
+exec "$(dirname "$0")/gemini-isolate" "$@"

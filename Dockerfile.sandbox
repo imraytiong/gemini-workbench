@@ -3,6 +3,9 @@ FROM ubuntu:24.04
 # Avoid prompts
 ENV DEBIAN_FRONTEND=noninteractive
 ENV GEMINI_SANDBOX=1
+ENV SANDBOX=podman
+ENV COLORTERM=truecolor
+ENV TERM=xterm-256color
 
 # Update and install core tools
 RUN apt-get update && apt-get install -y \
@@ -15,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-venv \
     build-essential \
+    ncurses-term \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 22.x

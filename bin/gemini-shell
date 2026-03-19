@@ -1,30 +1,22 @@
 #!/bin/bash
 
 # Gemini Shell Wrapper
-# Ensures the Podman machine and container are running before entering.
+# Enters the isolated Podman environment shell.
 
-MACHINE="podman-machine-default"
 CONTAINER="gemini-sandbox-container"
-PODMAN="/opt/podman/bin/podman"
+PROJECTS_DIR="/home/raytiong/projects"
 
-# 1. Check if Podman machine is running
-STATUS=$($PODMAN machine inspect $MACHINE --format "{{.State}}" 2>/dev/null)
-
-if [ "$STATUS" != "running" ]; then
-    echo "Starting Podman machine ($MACHINE)..."
-    $PODMAN machine start
+# If we are already in the sandbox, just open a new bash shell
+if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
+    exec /bin/bash
 fi
 
-# 2. Check if the sandbox container exists and is running
-if ! $PODMAN ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
-    echo "Error: $CONTAINER not found. Please re-run the sandbox setup."
-    exit 1
-fi
+# Detect Podman path
+PODMAN=$(which podman 2>/dev/null || echo "/opt/podman/bin/podman")
 
-if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
-    echo "Starting $CONTAINER..."
-    $PODMAN start $CONTAINER
-fi
+# Ensure the container is running (delegates to gemini-isolate for logic)
+# We run a no-op command to trigger the startup logic in gemini-isolate
+"$(dirname "$0")/gemini-isolate" --version > /dev/null
 
-# 3. Enter the shell
-$PODMAN exec -it -w /home/raytiong/projects $CONTAINER /bin/bash
+# Enter the shell
+exec $PODMAN exec -it -w $PROJECTS_DIR $CONTAINER /bin/bash

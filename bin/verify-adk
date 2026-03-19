@@ -4,11 +4,16 @@
 # Checks the health of the Agent Development Kit inside the sandbox.
 
 CONTAINER="gemini-sandbox-container"
-PODMAN="/opt/podman/bin/podman"
+
+# Detect Podman path
+PODMAN=$(which podman 2>/dev/null || echo "/opt/podman/bin/podman")
 
 echo "--- Gemini ADK Verification ---"
 
-# 1. Check if container is running
+# 1. Ensure the container is running (delegates startup to gemini-isolate if needed)
+# Running --version will trigger machine and container startup in gemini-isolate
+"$(dirname "$0")/gemini-isolate" --version > /dev/null
+
 if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
     echo "[FAIL] Sandbox container is not running."
     exit 1
@@ -26,11 +31,17 @@ echo -n "[CLI] Gemini version: "
 $PODMAN exec $CONTAINER gemini --version
 
 # 4. Check ADK Core
+# The location might vary depending on the global install or local mount
 CORE_PATH="/usr/lib/node_modules/@google/gemini-cli/node_modules/@google/gemini-cli-core"
 if $PODMAN exec $CONTAINER ls -d $CORE_PATH >/dev/null 2>&1; then
     echo "[OK] @google/gemini-cli-core found."
 else
-    echo "[FAIL] @google/gemini-cli-core not found."
+    # Try another common path (e.g. if installed via npm -g in a different prefix)
+    if $PODMAN exec $CONTAINER npm list -g @google/gemini-cli-core >/dev/null 2>&1; then
+        echo "[OK] @google/gemini-cli-core found via npm list."
+    else
+        echo "[FAIL] @google/gemini-cli-core not found."
+    fi
 fi
 
 echo "--- Verification Complete ---"
