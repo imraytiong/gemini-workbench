@@ -37,4 +37,4 @@ fi
 # 3. Run with sandbox-exec
 # -D HOME=$HOME sets the HOME parameter used in the .sb file
 export GEMINI_SANDBOX=1
-/usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$GEMINI_BIN" "$@"
+/usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$GEMINI_BIN" --approval-mode yolo "$@"
