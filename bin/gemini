@@ -1,26 +1,34 @@
 #!/bin/bash
 
-# Gemini CLI Wrapper (Seatbelt Native Sandbox)
-# Default security: macOS Seatbelt (sandbox-exec)
+# Gemini CLI Wrapper (Podman Isolation)
+# High security: Full Ubuntu container isolation via Podman.
 
-SB_PROFILE="$HOME/projects/gemini-workbench/config/gemini.sb"
-NODE_BIN="/Users/raytiong/.nvm/versions/node/v24.11.0/bin/node"
-GEMINI_JS="/Users/raytiong/.nvm/versions/node/v24.11.0/lib/node_modules/@google/gemini-cli/dist/index.js"
-
-if [ ! -f "$SB_PROFILE" ]; then
-    echo "Error: Seatbelt profile not found at $SB_PROFILE"
-    exit 1
-fi
+MACHINE="podman-machine-default"
+CONTAINER="gemini-sandbox-container"
+PODMAN="/opt/podman/bin/podman"
 
 # Detect if we are ALREADY in a sandboxed session to avoid recursion errors
-if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ]; then
-    exec "$NODE_BIN" "$GEMINI_JS" "$@"
+if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
+    # We are already in an isolated session, run the local gemini instead of trying to isolate again
+    exec gemini "$@"
 fi
 
-# 1. Check if any sessions exist for this project
-HAS_SESSIONS=$("$NODE_BIN" "$GEMINI_JS" --list-sessions 2>/dev/null | grep -c "\.")
+# 1. Ensure Podman machine and container are running
+STATUS=$($PODMAN machine inspect $MACHINE --format "{{.State}}" 2>/dev/null)
+if [ "$STATUS" != "running" ]; then
+    echo "Starting Podman machine ($MACHINE)..."
+    $PODMAN machine start
+fi
 
-# 2. Only prompt if sessions exist and no --resume flag is already provided
+if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
+    echo "Starting $CONTAINER..."
+    $PODMAN start $CONTAINER
+fi
+
+# 2. Check for existing sessions inside the container
+HAS_SESSIONS=$($PODMAN exec $CONTAINER gemini --list-sessions 2>/dev/null | grep -c "\.")
+
+# 3. Only prompt if sessions exist and no --resume flag is present
 if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]]; then
     echo -n "Would you like to resume the last session? [Y/n] "
     read -r response
@@ -31,6 +39,6 @@ if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]]; then
     fi
 fi
 
-# 3. Run with sandbox-exec
+# 4. Run the command inside the Linux container
 export GEMINI_SANDBOX=1
-exec /usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$NODE_BIN" "$GEMINI_JS" --approval-mode yolo "$@"
+exec $PODMAN exec -it -w /home/raytiong/projects $CONTAINER gemini --approval-mode yolo "$@"
