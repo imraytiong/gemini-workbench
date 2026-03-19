@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/18/2026] YOLO Mode Defaulted
+**Timestamp:** `2026-03-19 01:17`
+
+### 📋 Proposed Plan
+1. Add --approval-mode yolo to wrappers. 2. Verify with gemini --version. 3. Confirm autonomous behavior.
+
+### ✅ Execution & Validation
+SUCCESS: Wrappers are now defaulting to yolo mode.
+
+### 📝 Summary
+Updated gemini and gemini-isolate wrappers to include --approval-mode yolo by default. This enables faster, autonomous execution of sessions.
+
+### ⏳ Pending Tasks
+None.
+
+---
+
 ## [3/18/2026] Set Default Approval to Plan
 **Timestamp:** `2026-03-19 01:15`
 
