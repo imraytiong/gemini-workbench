@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/18/2026] Seatbelt Sandbox Baseline
+**Timestamp:** `2026-03-19 01:54`
+
+### 📋 Proposed Plan
+1. Identify failure points in file-based sandbox profiles. 2. Establish a 'permissive' baseline that avoids kernel rejection. 3. Clear security provenance flags to confirm they aren't the primary blockers.
+
+### ✅ Execution & Validation
+SUCCESS: Fixed one layer of 'Operation not permitted' errors; identified the core kernel rejection issue.
+
+### 📝 Summary
+Explored and diagnosed the 'Operation not permitted' error on macOS Sequoia. Successfully achieved a 'No-Op' sandbox (permissive mode) using the direct Node.js path, but confirmed that strict (deny default) native sandboxing triggers kernel rejections on this system version.
+
+### ⏳ Pending Tasks
+Switch to Podman isolation (gemini-isolate) for a more stable and secure environment.
+
+---
+
 ## [3/18/2026] Restored Sandbox and Fixed Permissions
 **Timestamp:** `2026-03-19 01:40`
 
