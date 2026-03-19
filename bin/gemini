@@ -4,7 +4,6 @@
 # Default security: macOS Seatbelt (sandbox-exec)
 
 SB_PROFILE="$HOME/projects/gemini-workbench/config/gemini.sb"
-# Points directly to the Node binary and JS entry point to avoid shebang/env issues
 NODE_BIN="/Users/raytiong/.nvm/versions/node/v24.11.0/bin/node"
 GEMINI_JS="/Users/raytiong/.nvm/versions/node/v24.11.0/lib/node_modules/@google/gemini-cli/dist/index.js"
 
@@ -15,18 +14,17 @@ fi
 
 # Detect if we are ALREADY in a sandboxed session to avoid recursion errors
 if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ]; then
-    "$NODE_BIN" "$GEMINI_JS" "$@"
-    exit $?
+    exec "$NODE_BIN" "$GEMINI_JS" "$@"
 fi
 
-# 1. Check if any sessions exist for this project (Fast, non-sandboxed check)
+# 1. Check if any sessions exist for this project
 HAS_SESSIONS=$("$NODE_BIN" "$GEMINI_JS" --list-sessions 2>/dev/null | grep -c "\.")
 
 # 2. Only prompt if sessions exist and no --resume flag is already provided
 if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]]; then
     echo -n "Would you like to resume the last session? [Y/n] "
     read -r response
-    response=${response:-Y} # Default to Y if Enter is pressed
+    response=${response:-Y}
 
     if [[ "$response" =~ ^[Yy]$ ]]; then
         set -- "--resume" "latest" "$@"
@@ -35,4 +33,4 @@ fi
 
 # 3. Run with sandbox-exec
 export GEMINI_SANDBOX=1
-/usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$NODE_BIN" "$GEMINI_JS" --approval-mode yolo "$@"
+exec /usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$NODE_BIN" "$GEMINI_JS" --approval-mode yolo "$@"

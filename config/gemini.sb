@@ -12,6 +12,11 @@
 (allow iokit-open)
 (allow ipc-posix-shm)
 (allow file-ioctl)
+(allow mach-lookup
+       (global-name "com.apple.PowerManagement.control")
+       (global-name "com.apple.system.notification_center")
+       (global-name "com.apple.SecurityServer")
+       (global-name "com.apple.security.keychain"))
 
 ;; Filesystem: Allow general read access for system and libraries
 (allow file-read*)
