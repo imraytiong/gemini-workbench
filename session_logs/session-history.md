@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/18/2026] Nested Sandbox Fix
+**Timestamp:** `2026-03-19 01:19`
+
+### 📋 Proposed Plan
+1. Add GEMINI_CLI check to wrappers. 2. Add container detection to gemini-isolate. 3. Verify logic.
+
+### ✅ Execution & Validation
+SUCCESS: Nested sandbox errors are resolved.
+
+### 📝 Summary
+Refactored gemini and gemini-isolate to detect GEMINI_CLI or container markers and avoid nested sandbox-exec or Podman calls, which were causing 'Operation not permitted' errors.
+
+### ⏳ Pending Tasks
+Monitor if this handles all terminal scenarios.
+
+---
+
 ## [3/18/2026] YOLO Mode Defaulted
 **Timestamp:** `2026-03-19 01:17`
 
