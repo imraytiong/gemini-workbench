@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/18/2026] Advanced Environment Configuration
+**Timestamp:** `2026-03-19 01:08`
+
+### 📋 Proposed Plan
+1. Identify advanced configuration options for a noise-free environment. 2. Update ~/.gemini/settings.json with optimized defaults.
+
+### ✅ Execution & Validation
+SUCCESS: settings.json updated with a balance of automation and learning context.
+
+### 📝 Summary
+Applied a 'noise-reduced' configuration to ~/.gemini/settings.json, enabling YOLO mode by default and hiding unnecessary UI elements (banner, loading phrases) while keeping Tips and Footer for learning. Also enabled experimental tool output masking for cleaner context history.
+
+### ⏳ Pending Tasks
+Observe the new, cleaner UI on the next session restart.
+
+---
+
 ## [3/18/2026] Enable Default YOLO Mode
 **Timestamp:** `2026-03-18 23:43`
 
