@@ -7,8 +7,12 @@ MACHINE="podman-machine-default"
 CONTAINER="gemini-sandbox-container"
 PODMAN="/opt/podman/bin/podman"
 
-# Ensure Podman machine and container are running
-STATUS=$($PODMAN machine inspect $MACHINE --format "{{.State}}" 2>/dev/null)
+# Detect if we are ALREADY in a sandboxed session to avoid recursion errors
+if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
+    # We are already in an isolated session, run the local gemini instead of trying to isolate again
+    gemini "$@"
+    exit $?
+fi
 if [ "$STATUS" != "running" ]; then
     echo "Starting Podman machine ($MACHINE)..."
     $PODMAN machine start
