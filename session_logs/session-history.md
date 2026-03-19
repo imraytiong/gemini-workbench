@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/18/2026] Direct Node Invocation Fix
+**Timestamp:** `2026-03-19 01:21`
+
+### 📋 Proposed Plan
+1. Point to node and dist/index.js. 2. Verify with gemini --version. 3. Confirm on host.
+
+### ✅ Execution & Validation
+SUCCESS: Sandbox errors are resolved by direct invocation.
+
+### 📝 Summary
+Resolved 'Operation not permitted' sandbox errors by bypassing the /usr/bin/env-S shebang. The wrapper now calls the node binary directly with the JS entry point.
+
+### ⏳ Pending Tasks
+None.
+
+---
+
 ## [3/18/2026] Nested Sandbox Fix
 **Timestamp:** `2026-03-19 01:19`
 
