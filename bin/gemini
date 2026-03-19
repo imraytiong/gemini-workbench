@@ -11,10 +11,19 @@ if [ ! -f "$SB_PROFILE" ]; then
     exit 1
 fi
 
-# Check if any sessions exist for this project
-HAS_SESSIONS=$(/usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$GEMINI_BIN" --list-sessions 2>/dev/null | grep -c "\.")
+# Detect if we are ALREADY in a sandboxed session to avoid recursion errors
+if [ "$GEMINI_SANDBOX" = "1" ]; then
+    echo "Using existing sandbox environment."
+    "$GEMINI_BIN" "$@"
+    exit $?
+fi
 
-# Only prompt if there are sessions AND no --resume flag is already provided
+# 1. Check if any sessions exist for this project
+# We use a temporary non-sandboxed check or just trust the binary
+# Actually, for the check we can just run it without sandbox or with it if it's not recursive
+HAS_SESSIONS=$("$GEMINI_BIN" --list-sessions 2>/dev/null | grep -c "\.")
+
+# 2. Only prompt if sessions exist and no --resume flag is already provided
 if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]]; then
     echo -n "Would you like to resume the last session? [Y/n] "
     read -r response
@@ -25,7 +34,7 @@ if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]]; then
     fi
 fi
 
-# Run with sandbox-exec
+# 3. Run with sandbox-exec
 # -D HOME=$HOME sets the HOME parameter used in the .sb file
 export GEMINI_SANDBOX=1
-/usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$GEMINI_BIN" --approval-mode yolo "$@"
+/usr/bin/sandbox-exec -f "$SB_PROFILE" -D HOME="$HOME" "$GEMINI_BIN" "$@"
