@@ -1,6 +1,17 @@
 # Gemini Session History
 
 
+## [3/20/2026] Onboarding Workflow Automation
+**Timestamp:** `2026-03-20 03:31`
+
+### 📝 Summary
+Added a workflow directive to GEMINI.md to allow the Gemini CLI to automatically execute 'setup-workbench.sh' when prompted by the user, ensuring a hands-free setup on new machines.
+
+### ⏳ Pending Tasks
+Ready for Mac Mini onboarding.
+
+---
+
 ## [3/20/2026] Workbench Portability and Automation
 **Timestamp:** `2026-03-20 03:23`
 
