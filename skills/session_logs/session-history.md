@@ -1,6 +1,17 @@
 # Gemini Session History
 
 
+## [3/20/2026] Disable Background Voice Note Sync
+**Timestamp:** `2026-03-20 03:39`
+
+### 📝 Summary
+Removed the automated background check for voice notes from the 'gemini' wrapper script to allow for purely manual invocation by the user.
+
+### ⏳ Pending Tasks
+Sync voice notes manually by asking the CLI.
+
+---
+
 ## [3/20/2026] Relocate Voice Note Gatherer
 **Timestamp:** `2026-03-20 03:38`
 

@@ -3,17 +3,7 @@
 # Gemini Workbench: Default Wrapper
 # Directs all workbench sessions to the isolated Podman environment.
 
-# 1. Check for Voice Notes in the background (Silent)
-# Resolves the path relative to the projects root (parent of gemini-workbench)
-BIN_DIR=$(cd "$(dirname "$0")" && pwd)
-PROJECTS_ROOT=$(dirname "$(dirname "$BIN_DIR")")
-GATHER_NOTES_SCRIPT="$PROJECTS_ROOT/rayintheloop_web/skills/voice-note-gatherer/scripts/gather_notes.cjs"
-
-if [ -f "$GATHER_NOTES_SCRIPT" ]; then
-    node "$GATHER_NOTES_SCRIPT" > /dev/null 2>&1 &
-fi
-
-# 3. Handle Sandbox Recursion
+# 1. Handle Sandbox Recursion
 if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
     export SANDBOX="podman"
     exec gemini "$@"
