@@ -1,6 +1,17 @@
 # Gemini Session History
 
 
+## [3/20/2026] Mac Mini Preparation and Workbench Refactor
+**Timestamp:** `2026-03-20 03:40`
+
+### 📝 Summary
+Successfully completed a comprehensive refactor of the Gemini Workbench to ensure portability and seamless onboarding for the new Mac Mini. Ported all scripts to be username-agnostic, added a 'setup-workbench.sh' automation script, and relocated project-specific skills (voice-note-gatherer) to their respective repositories. Disabled background automation for voice notes in favor of manual user invocation.
+
+### ⏳ Pending Tasks
+- Unbox and set up Mac Mini.\n- Clone 'gemini-workbench' and run 'bash setup-workbench.sh'.\n- Authenticate via 'gemini login'.\n- Verify manual voice note sync.
+
+---
+
 ## [3/20/2026] Disable Background Voice Note Sync
 **Timestamp:** `2026-03-20 03:39`
 
