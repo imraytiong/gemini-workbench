@@ -56,6 +56,13 @@ echo "Registering projects with Gemini CLI..."
 gemini project add "$WORKBENCH_ROOT"
 gemini project add "$PROJECTS_ROOT"
 
+# Remove existing container to ensure new environment variables are applied
+CONTAINER="gemini-sandbox-container"
+if podman ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
+    echo "Removing existing container $CONTAINER..."
+    podman rm -f "$CONTAINER"
+fi
+
 # 5. Build Sandbox Image
 echo "Building Podman sandbox image..."
 bash "$WORKBENCH_ROOT/bin/build-sandbox"

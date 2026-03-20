@@ -1,6 +1,17 @@
 # Gemini Session History
 
 
+## [3/20/2026] Fix Sandbox Recursion Error
+**Timestamp:** `2026-03-20 06:28`
+
+### 📝 Summary
+Refactored 'gemini-isolate' to remove GEMINI_SANDBOX=1 from the container's environment, preventing the inner Gemini CLI from trying to start a nested sandbox. Updated 'setup-workbench.sh' to automatically reset the container during installation.
+
+### ⏳ Pending Tasks
+Retry 'bash setup-workbench.sh' on the Mac Mini.
+
+---
+
 ## [3/20/2026] Mac Mini Preparation and Workbench Refactor
 **Timestamp:** `2026-03-20 03:40`
 

@@ -49,7 +49,7 @@ if ! $PODMAN ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
     $PODMAN create --name $CONTAINER \
         -v "$PROJECTS_DIR:$CONTAINER_PROJECTS" \
         -w "$CONTAINER_PROJECTS" \
-        -e GEMINI_SANDBOX=1 \
+        -e GEMINI_CLI=1 \
         -e SANDBOX=podman \
         -e GMAIL_USER="$GMAIL_USER" \
         -e GMAIL_PASS="$GMAIL_PASS" \
