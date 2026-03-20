@@ -1,6 +1,17 @@
 # Gemini Session History
 
 
+## [3/20/2026] Research: Obsidian CLI, Podman UI Testing, and ADK
+**Timestamp:** `2026-03-20 02:33`
+
+### 📝 Summary
+Discussed Obsidian CLI options, UI testing approaches within a Podman sandbox (Playwright/Vision), and reviewed Google ADK architecture. Deferred ADK boilerplate scaffolding until the new Mac Mini is set up.
+
+### ⏳ Pending Tasks
+- Set up new Mac Mini environment.\n- Scaffold ADK + Podman project once the machine is ready.
+
+---
+
 ## [3/18/2026] Seatbelt Sandbox Baseline
 **Timestamp:** `2026-03-19 01:54`
 
