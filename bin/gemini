@@ -3,11 +3,20 @@
 # Gemini Workbench: Default Wrapper
 # Directs all workbench sessions to the isolated Podman environment.
 
-# If we are already in the sandbox, just run the local gemini
+# 1. Check for Voice Notes in the background (Silent)
+# Resolves the path relative to the script's parent directory
+WORKBENCH_ROOT=$(dirname "$(cd "$(dirname "$0")" && pwd)")
+GATHER_NOTES_SCRIPT="$WORKBENCH_ROOT/skills/voice-note-gatherer/scripts/gather_notes.cjs"
+
+if [ -f "$GATHER_NOTES_SCRIPT" ]; then
+    node "$GATHER_NOTES_SCRIPT" > /dev/null 2>&1 &
+fi
+
+# 3. Handle Sandbox Recursion
 if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
     export SANDBOX="podman"
     exec gemini "$@"
 fi
 
-# Otherwise, delegate to gemini-isolate
+# 4. Delegate to gemini-isolate
 exec "$(dirname "$0")/gemini-isolate" "$@"

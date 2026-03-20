@@ -19,6 +19,7 @@ echo "Building $IMAGE_NAME..."
 # Use Podman to build the image
 $PODMAN build \
     --tag $IMAGE_NAME:latest \
+    --build-arg USERNAME=$(whoami) \
     --build-arg USER_UID=$(id -u) \
     --build-arg USER_GID=$(id -g) \
     -f $DOCKERFILE .

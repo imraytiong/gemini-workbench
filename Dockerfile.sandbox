@@ -27,7 +27,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     rm -rf /var/lib/apt/lists/*
 
 # Create user with matching host UID/GID
-ARG USERNAME=raytiong
+ARG USERNAME
 ARG USER_UID=501
 ARG USER_GID=20
 
@@ -37,7 +37,7 @@ RUN (groupadd --gid $USER_GID $USERNAME || groupmod -n $USERNAME $(getent group 
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
 # Set working directory
-WORKDIR /home/raytiong/projects
+WORKDIR /home/${USERNAME}/projects
 
 # Install Gemini CLI globally
 RUN npm install -g @google/gemini-cli

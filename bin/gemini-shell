@@ -4,7 +4,16 @@
 # Enters the isolated Podman environment shell.
 
 CONTAINER="gemini-sandbox-container"
-PROJECTS_DIR="/home/raytiong/projects"
+
+# Dynamically set the workspace root relative to this script
+BIN_DIR=$(cd "$(dirname "$0")" && pwd)
+WORKBENCH_ROOT=$(dirname "$BIN_DIR")
+PROJECTS_DIR=$(dirname "$WORKBENCH_ROOT")
+
+# Detect host user and determine consistent container paths
+HOST_USER=$(whoami)
+CONTAINER_HOME="/home/$HOST_USER"
+CONTAINER_PROJECTS="$CONTAINER_HOME/projects"
 
 # If we are already in the sandbox, just open a new bash shell
 if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
@@ -19,4 +28,4 @@ PODMAN=$(which podman 2>/dev/null || echo "/opt/podman/bin/podman")
 "$(dirname "$0")/gemini-isolate" --version > /dev/null
 
 # Enter the shell
-exec $PODMAN exec -it -w $PROJECTS_DIR $CONTAINER /bin/bash
+exec $PODMAN exec -it -w "$CONTAINER_PROJECTS" $CONTAINER /bin/bash

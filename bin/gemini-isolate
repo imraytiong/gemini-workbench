@@ -5,7 +5,16 @@
 
 IMAGE_NAME="gemini-sandbox"
 CONTAINER="gemini-sandbox-container"
-PROJECTS_DIR="/home/raytiong/projects"
+
+# Dynamically set the workspace root relative to this script
+BIN_DIR=$(cd "$(dirname "$0")" && pwd)
+WORKBENCH_ROOT=$(dirname "$BIN_DIR")
+PROJECTS_DIR=$(dirname "$WORKBENCH_ROOT")
+
+# Detect host user and determine consistent container paths
+HOST_USER=$(whoami)
+CONTAINER_HOME="/home/$HOST_USER"
+CONTAINER_PROJECTS="$CONTAINER_HOME/projects"
 
 # Detect if we are ALREADY in a sandboxed session to avoid recursion errors
 if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
@@ -38,10 +47,12 @@ if ! $PODMAN ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
 
     # Create the container but don't start it yet
     $PODMAN create --name $CONTAINER \
-        -v $PROJECTS_DIR:$PROJECTS_DIR \
-        -w $PROJECTS_DIR \
+        -v "$PROJECTS_DIR:$CONTAINER_PROJECTS" \
+        -w "$CONTAINER_PROJECTS" \
         -e GEMINI_SANDBOX=1 \
         -e SANDBOX=podman \
+        -e GMAIL_USER="$GMAIL_USER" \
+        -e GMAIL_PASS="$GMAIL_PASS" \
         -it $IMAGE_NAME
 fi
 
@@ -78,4 +89,4 @@ fi
 
 # 6. Run the command inside the Linux container
 export COLORTERM=truecolor
-exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w $PROJECTS_DIR $CONTAINER gemini "$@"
+exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_PROJECTS" $CONTAINER gemini "$@"

@@ -6,7 +6,19 @@ This project serves as the centralized configuration and development hub for all
 - **Full Isolation:** Use Podman for full Ubuntu containerized isolation by default for all workbench sessions.
 - **Native Fallback:** The `gemini-isolate` wrapper handles container lifecycle, with native Node.js execution only when already inside the sandbox.
 - **Unified Logging:** All sessions in this project are logged to the local `session_logs/` directory.
-- **Centralized Binaries:** Custom wrappers (`gemini`, `gemini-shell`, `gemini-isolate`, `build-sandbox`) are located in `bin/` and added to the host's `PATH`.
+## Installation & Setup
+For new machines (like macOS with Podman), clone the repository and run:
+```bash
+bash setup-workbench.sh
+```
+This script automates:
+- Prerequisite verification (`node`, `npm`, `podman`, `git`, `gemini`).
+- Symlinking skills to `~/.gemini/skills`.
+- Registering the workbench and projects with the Gemini CLI.
+- Building the isolated Podman sandbox image.
+
+## Custom Binaries
+Custom wrappers (`gemini`, `gemini-shell`, `gemini-isolate`, `build-sandbox`) are located in `bin/`. These are now portable and dynamically detect the host username and workspace paths.
 
 ## Project Structure
 - `bin/`: Host scripts and CLI wrappers.
