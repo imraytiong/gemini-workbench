@@ -1,6 +1,17 @@
 # Gemini Session History
 
 
+## [3/20/2026] Workbench Portability and Automation
+**Timestamp:** `2026-03-20 03:23`
+
+### 📝 Summary
+Refactored workbench binaries and Dockerfile to remove hardcoded usernames and absolute paths, making the environment portable. Created 'setup-workbench.sh' to automate the installation, skill symlinking, and sandbox building on new machines like the Mac Mini.
+
+### ⏳ Pending Tasks
+- Verify 'setup-workbench.sh' on the new Mac Mini.\n- Finalize Mac Mini environment setup.
+
+---
+
 ## [3/20/2026] Research: Obsidian CLI, Podman UI Testing, and ADK
 **Timestamp:** `2026-03-20 02:33`
 
