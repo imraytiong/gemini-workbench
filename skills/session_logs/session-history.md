@@ -1,6 +1,17 @@
 # Gemini Session History
 
 
+## [3/20/2026] Relocate Voice Note Gatherer
+**Timestamp:** `2026-03-20 03:38`
+
+### 📝 Summary
+Moved the voice-note-gatherer skill from gemini-workbench to rayintheloop_web to colocate it with its journal data. Refactored the script for dynamic pathing and updated the workbench setup script to automatically scan sibling projects for skills.
+
+### ⏳ Pending Tasks
+Verify voice note syncing works on Mac Mini.
+
+---
+
 ## [3/19/2026] Implement and Refine Voice Note Gatherer Skill
 **Timestamp:** `2026-03-19 03:45`
 

@@ -26,11 +26,28 @@ SKILLS_DIR="$HOME/.gemini/skills"
 echo "Setting up skills in $SKILLS_DIR..."
 mkdir -p "$SKILLS_DIR"
 
+# Link skills from the workbench itself
+echo "Checking workbench skills..."
 for skill in "$WORKBENCH_ROOT/skills"/*; do
     if [ -d "$skill" ]; then
         SKILL_NAME=$(basename "$skill")
-        echo "Linking skill: $SKILL_NAME"
+        echo "Linking workbench skill: $SKILL_NAME"
         ln -sfn "$skill" "$SKILLS_DIR/$SKILL_NAME"
+    fi
+done
+
+# Scan sibling projects for skills/ directories and link them
+echo "Scanning sibling projects for additional skills..."
+for project in "$PROJECTS_ROOT"/*; do
+    if [ -d "$project/skills" ]; then
+        echo "Found skills in: $(basename "$project")"
+        for skill in "$project/skills"/*; do
+            if [ -d "$skill" ]; then
+                SKILL_NAME=$(basename "$skill")
+                echo "Linking project skill: $SKILL_NAME"
+                ln -sfn "$skill" "$SKILLS_DIR/$SKILL_NAME"
+            fi
+        done
     fi
 done
 
