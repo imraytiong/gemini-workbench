@@ -20,6 +20,9 @@ This script automates:
 ## Custom Binaries
 Custom wrappers (`gemini`, `gemini-shell`, `gemini-isolate`, `build-sandbox`) are located in `bin/`. These are now portable and dynamically detect the host username and workspace paths.
 
+## Workflows
+- **Initialization:** If the user asks to "setup", "install", or "initialize" the workbench, you must immediately execute `bash setup-workbench.sh` and guide them through the final PATH configuration steps.
+
 ## Project Structure
 - `bin/`: Host scripts and CLI wrappers.
 - `config/`: Shared configuration settings for host and container.
