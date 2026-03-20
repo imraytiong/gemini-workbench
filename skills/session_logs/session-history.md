@@ -1,6 +1,17 @@
 # Gemini Session History
 
 
+## [3/20/2026] Fix Podman Ownership and Permissions
+**Timestamp:** `2026-03-20 06:46`
+
+### 📝 Summary
+Refactored 'gemini-isolate' to use --userns=keep-id for 1:1 host/container user mapping on macOS. Updated 'setup-workbench.sh' to mark project directories as safe for Git, resolving permission and dubious ownership errors on the Mac Mini.
+
+### ⏳ Pending Tasks
+Re-run 'bash setup-workbench.sh' after pulling latest changes.
+
+---
+
 ## [3/20/2026] Fix Sandbox Recursion Error
 **Timestamp:** `2026-03-20 06:28`
 

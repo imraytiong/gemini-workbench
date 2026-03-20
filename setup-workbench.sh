@@ -56,6 +56,10 @@ echo "Registering projects with Gemini CLI..."
 gemini project add "$WORKBENCH_ROOT"
 gemini project add "$PROJECTS_ROOT"
 
+# Ensure Git trusts these directories (prevents "dubious ownership" errors)
+git config --global --add safe.directory "$WORKBENCH_ROOT"
+git config --global --add safe.directory "$PROJECTS_ROOT"
+
 # Remove existing container to ensure new environment variables are applied
 CONTAINER="gemini-sandbox-container"
 if podman ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then

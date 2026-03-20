@@ -47,6 +47,7 @@ if ! $PODMAN ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
 
     # Create the container but don't start it yet
     $PODMAN create --name $CONTAINER \
+        --userns=keep-id \
         -v "$PROJECTS_DIR:$CONTAINER_PROJECTS" \
         -w "$CONTAINER_PROJECTS" \
         -e GEMINI_CLI=1 \
