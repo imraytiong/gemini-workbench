@@ -66,6 +66,18 @@ if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
     $PODMAN start $CONTAINER
 fi
 
-# 4. Run the command inside the Linux container
+# 4. Map the current working directory from host to container
+# If we are in the projects directory, translate the path.
+HOST_CWD=$(pwd)
+if [[ "$HOST_CWD" == "$PROJECTS_DIR"* ]]; then
+    # Strip the host prefix and append to container prefix
+    REL_PATH=${HOST_CWD#"$PROJECTS_DIR"}
+    CONTAINER_CWD="$CONTAINER_PROJECTS$REL_PATH"
+else
+    # Fallback to projects root if outside the mounted path
+    CONTAINER_CWD="$CONTAINER_PROJECTS"
+fi
+
+# 5. Run the command inside the Linux container
 export COLORTERM=truecolor
-exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$(pwd)" $CONTAINER gemini "$@"
+exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER gemini "$@"
