@@ -3,7 +3,39 @@
 # Gemini Workbench: Default Wrapper
 # Directs all workbench sessions to the isolated Podman environment.
 
-# 1. Handle Sandbox Recursion
+# 1. Check for --nosandbox or -nosandbox
+NOSANDBOX=false
+NEW_ARGS=()
+for arg in "$@"; do
+    if [[ "$arg" == "--nosandbox" || "$arg" == "-nosandbox" ]]; then
+        NOSANDBOX=true
+    else
+        NEW_ARGS+=("$arg")
+    fi
+done
+
+# 2. Execute natively if requested
+if [ "$NOSANDBOX" = true ]; then
+    # Find the real gemini binary, excluding this script
+    SCRIPT_PATH=$(cd "$(dirname "$0")" && pwd)/gemini
+    REAL_GEMINI=$(which -a gemini | grep -v "$SCRIPT_PATH" | head -n 1)
+    
+    if [ -z "$REAL_GEMINI" ]; then
+        # Fallback to common npm global path if not found in PATH
+        NPM_BIN=$(npm config get prefix)/bin/gemini
+        if [ -f "$NPM_BIN" ]; then
+            REAL_GEMINI="$NPM_BIN"
+        else
+            echo "Error: Could not find the native 'gemini' binary. Is it installed via npm?"
+            exit 1
+        fi
+    fi
+    
+    # Run the native gemini with the filtered arguments
+    exec "$REAL_GEMINI" "${NEW_ARGS[@]}"
+fi
+
+# 3. Handle Sandbox Recursion
 if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
     export SANDBOX="podman"
     exec gemini "$@"
