@@ -4,12 +4,21 @@
 # Standardizes the creation of the Ubuntu-based isolation environment.
 
 IMAGE_NAME="gemini-sandbox"
-DOCKERFILE="Dockerfile.sandbox"
-PODMAN="podman" # Assume it's in the PATH on the host
+
+# Dynamically set the workbench root relative to this script
+BIN_DIR=$(cd "$(dirname "$0")" && pwd)
+WORKBENCH_ROOT=$(dirname "$BIN_DIR")
+DOCKERFILE="$WORKBENCH_ROOT/Dockerfile.sandbox"
+
+# Detect Podman path
+PODMAN=$(which podman 2>/dev/null || echo "/opt/podman/bin/podman")
+if [ ! -x "$PODMAN" ]; then
+    PODMAN="podman" # Fallback to whatever is in PATH
+fi
 
 # Check if we are in the right directory
 if [ ! -f "$DOCKERFILE" ]; then
-    echo "Error: $DOCKERFILE not found in the current directory."
+    echo "Error: $DOCKERFILE not found at $DOCKERFILE."
     exit 1
 fi
 
@@ -22,6 +31,6 @@ $PODMAN build \
     --build-arg USERNAME=$(whoami) \
     --build-arg USER_UID=$(id -u) \
     --build-arg USER_GID=$(id -g) \
-    -f $DOCKERFILE .
+    -f $DOCKERFILE "$WORKBENCH_ROOT"
 
 echo "Build complete. You can now use 'gemini-isolate' or 'gemini' to run sessions in this environment."

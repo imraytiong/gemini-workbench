@@ -15,6 +15,7 @@ PROJECTS_DIR=$(dirname "$WORKBENCH_ROOT")
 HOST_USER=$(whoami)
 CONTAINER_HOME="/home/$HOST_USER"
 CONTAINER_PROJECTS="$CONTAINER_HOME/projects"
+CONTAINER_GEMINI_HOME="$CONTAINER_HOME/.gemini"
 
 # Detect if we are ALREADY in a sandboxed session to avoid recursion errors
 if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
@@ -46,9 +47,11 @@ if ! $PODMAN ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
     fi
 
     # Create the container but don't start it yet
+    # We mount ~/.gemini to share session history and settings
     $PODMAN create --name $CONTAINER \
         --userns=keep-id \
         -v "$PROJECTS_DIR:$CONTAINER_PROJECTS" \
+        -v "$HOME/.gemini:$CONTAINER_GEMINI_HOME" \
         -w "$CONTAINER_PROJECTS" \
         -e GEMINI_CLI=1 \
         -e SANDBOX=podman \
@@ -63,31 +66,6 @@ if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
     $PODMAN start $CONTAINER
 fi
 
-# 4. Check for existing sessions inside the container
-HAS_SESSIONS=$($PODMAN exec $CONTAINER gemini --list-sessions 2>/dev/null | grep -c "\.")
-
-# 5. Restore logic: (S)ummary [Default] / (p)erfect / (n)o
-if [ $HAS_SESSIONS -gt 0 ] && [[ ! "$*" == *"--resume"* ]] && [[ ! "$*" == *"--prompt"* ]]; then
-    echo -n "Restore session? [(S)ummary / (p)erfect / (n)o] "
-    read -r response
-    response=${response:-S}
-
-    case "$response" in
-        [Pp]*)
-            echo "Restoring perfect memory (native resume)..."
-            set -- "--resume" "latest" "$@"
-            ;;
-        [Nn]*)
-            echo "Starting fresh session..."
-            ;;
-        *)
-            echo "Restoring from daily summary (clean slate + logs)..."
-            SUMMARY_PROMPT="Please read gemini-workbench/session_logs/latest-session.md to recover the context of our last session. Acknowledge the current status and suggest the first task from the 'Consolidated Pending Tasks' list."
-            set -- "--prompt-interactive" "$SUMMARY_PROMPT" "$@"
-            ;;
-    esac
-fi
-
-# 6. Run the command inside the Linux container
+# 4. Run the command inside the Linux container
 export COLORTERM=truecolor
-exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_PROJECTS" $CONTAINER gemini "$@"
+exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$(pwd)" $CONTAINER gemini "$@"

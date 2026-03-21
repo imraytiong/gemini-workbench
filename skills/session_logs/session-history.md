@@ -1,6 +1,40 @@
 # Gemini Session History
 
 
+## [3/21/2026] Native Execution & Hybrid Research
+**Timestamp:** `2026-03-21 01:23`
+
+### 📋 Proposed Plan
+Implement a mechanism to bypass the sandbox for architectural tasks while maintaining the workbench structure.
+
+### ✅ Execution & Validation
+Successfully updated 'gemini' wrapper and verified GitHub connectivity.
+
+### 📝 Summary
+Modified the 'gemini' wrapper to support a --nosandbox flag for native execution on the host. Researched hybrid (socket-mount) vs. native models for ADK orchestration.
+
+### ⏳ Pending Tasks
+Switch to native execution using 'gemini --nosandbox' and begin building the ADK infrastructure (Python orchestrator + Podman agent containers).
+
+---
+
+## [3/21/2026] Agentic Environment Best Practices
+**Timestamp:** `2026-03-21 01:07`
+
+### 📋 Proposed Plan
+Create a foundational best practices document to guide future agent development.
+
+### ✅ Execution & Validation
+Successfully created BEST_PRACTICES_AGENTIC.md in the workbench root.
+
+### 📝 Summary
+Defined and created BEST_PRACTICES_AGENTIC.md outlining standards for ADK, Python, Podman, and testing.
+
+### ⏳ Pending Tasks
+Set up the Podman sandbox for ADK and initialize the core Python structure.
+
+---
+
 ## [3/20/2026] Fix Podman Ownership and Permissions
 **Timestamp:** `2026-03-20 06:46`
 

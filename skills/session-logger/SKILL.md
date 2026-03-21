@@ -26,11 +26,11 @@ When the user asks to "log this session," "save our work," or "checkpoint," foll
 
 When starting a new session or if the user asks "where did we leave off?", you SHOULD:
 
-1.  Read the `session_logs/latest-session.md` file in the project root to instantly recover the full context of the current day's activity.
+1.  Read the `session_log/latest-session.md` file in the project root to instantly recover the full context of the current day's activity.
 2.  Acknowledge the daily progress and offer to start on the consolidated pending tasks.
 
 ## File Locations
 
-- **Long-running Log:** `session_logs/session-history.md` (Reverse-chronological history)
-- **Daily Capture:** `session_logs/latest-session.md` (Aggregated 'Day View' - Overwritten each time)
+- **Long-running Log:** `session_log/session-history.md` (Reverse-chronological history)
+- **Daily Capture:** `session_log/latest-session.md` (Aggregated 'Day View' - Overwritten each time)
 - **Skill Path:** `skills/session-logger/`

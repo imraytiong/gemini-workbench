@@ -21,9 +21,9 @@ function findGitRoot(startDir = process.cwd()) {
 const GIT_ROOT = findGitRoot();
 const GLOBAL_LOG_ROOT = path.resolve(__dirname, '../../'); // ~/.gemini/skills/
 
-// Determine the active log root: prefer project-local session_logs/ if in a Git repo.
+// Determine the active log root: prefer project-local session_log/ if in a Git repo.
 const LOG_ROOT = GIT_ROOT || GLOBAL_LOG_ROOT;
-const LOG_DIR = path.join(LOG_ROOT, 'session_logs');
+const LOG_DIR = path.join(LOG_ROOT, 'session_log');
 const LOG_FILE = path.join(LOG_DIR, 'session-history.md');
 const LATEST_FILE = path.join(LOG_DIR, 'latest-session.md');
 
@@ -167,8 +167,15 @@ ${nextSteps}
         // If in a Git repository, stage and commit the changes
         if (GIT_ROOT) {
             process.chdir(GIT_ROOT);
-            execSync(`git add -f "${path.relative(GIT_ROOT, LOG_FILE)}" "${path.relative(GIT_ROOT, LATEST_FILE)}"`);
-            execSync(`git commit -m "docs: session log - ${title}"`);
+            try {
+                // Check if git user is configured
+                execSync('git config user.name', { stdio: 'ignore' });
+                execSync(`git add -f "${path.relative(GIT_ROOT, LOG_FILE)}" "${path.relative(GIT_ROOT, LATEST_FILE)}"`);
+                execSync(`git commit -m "docs: session log - ${title}"`);
+                console.log("Committed to Git successfully.");
+            } catch (gitError) {
+                console.warn("Warning: Git is not configured or commit failed. Skipping commit.");
+            }
         }
 
         console.log(`Success: Logged "${title}" in ${LOG_ROOT} and updated daily summary.`);

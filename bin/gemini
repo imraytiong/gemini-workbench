@@ -3,21 +3,94 @@
 # Gemini Workbench: Default Wrapper
 # Directs all workbench sessions to the isolated Podman environment.
 
-# 1. Check for --nosandbox or -nosandbox
+# 0. Detect if we are ALREADY in a sandboxed session to avoid recursion and podman calls
+if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
+    # We are already in an isolated session, run the local gemini binary directly
+    # Use 'command -v' to find the system gemini, skipping this wrapper
+    REAL_GEMINI=$(command -v gemini)
+    if [ "$REAL_GEMINI" = "$(readlink -f "$0")" ] || [ "$REAL_GEMINI" = "$0" ]; then
+        # If 'gemini' points to this script, we need to find the next one in PATH
+        REAL_GEMINI=$(which -a gemini | grep -v "$(readlink -f "$0")" | head -n 1)
+    fi
+    exec "$REAL_GEMINI" "$@"
+fi
+
+# Dynamically set the workbench root relative to this script
+BIN_DIR=$(cd "$(dirname "$0")" && pwd)
+WORKBENCH_ROOT=$(dirname "$BIN_DIR")
+
+# 1. Check for flags that should skip restoration
 NOSANDBOX=false
+HAS_RESUME=false
+HAS_PROMPT=false
+SKIP_RESTORE=false
 NEW_ARGS=()
+
 for arg in "$@"; do
     if [[ "$arg" == "--nosandbox" || "$arg" == "-nosandbox" ]]; then
         NOSANDBOX=true
+    elif [[ "$arg" == "--resume" || "$arg" == "-r" ]]; then
+        HAS_RESUME=true
+        NEW_ARGS+=("$arg")
+    elif [[ "$arg" == "--prompt"* || "$arg" == "-p" || "$arg" == "--prompt-interactive" || "$arg" == "-i" ]]; then
+        HAS_PROMPT=true
+        NEW_ARGS+=("$arg")
+    elif [[ "$arg" == "--list-sessions" || "$arg" == "--version" || "$arg" == "-v" || "$arg" == "--help" || "$arg" == "-h" ]]; then
+        SKIP_RESTORE=true
+        NEW_ARGS+=("$arg")
     else
         NEW_ARGS+=("$arg")
     fi
 done
 
-# 2. Execute natively if requested
+# 2. Session Restoration Logic (Before any execution)
+# Only prompt if it's a TTY and not a special command
+if [ -t 0 ] && [ "$HAS_RESUME" = false ] && [ "$HAS_PROMPT" = false ] && [ "$SKIP_RESTORE" = false ]; then
+    # Locate latest session summary
+    LATEST_SUMMARY=""
+    
+    # Priority 1: Current directory (project-specific)
+    if [ -f "session_log/latest-session.md" ]; then
+        LATEST_SUMMARY="$(pwd)/session_log/latest-session.md"
+    # Priority 2: Global link (workbench index)
+    elif [ -f "$HOME/.gemini/session_log/latest-session.md" ]; then
+        LATEST_SUMMARY="$HOME/.gemini/session_log/latest-session.md"
+    fi
+
+    # Check for perfect memory sessions (native)
+    # This will be consistent if ~/.gemini is shared between host and container
+    HAS_SESSIONS=$(gemini --list-sessions 2>/dev/null | grep -c "\.")
+
+    if [ -n "$LATEST_SUMMARY" ] || [ $HAS_SESSIONS -gt 0 ]; then
+        echo -n "Restore session? [(S)ummary / (p)erfect / (n)o] "
+        read -r response
+        response=${response:-S}
+
+        case "$response" in
+            [Pp]*)
+                echo "Restoring perfect memory (native resume)..."
+                NEW_ARGS=("--resume" "latest" "${NEW_ARGS[@]}")
+                ;;
+            [Nn]*)
+                echo "Starting fresh session..."
+                ;;
+            *)
+                if [ -n "$LATEST_SUMMARY" ]; then
+                    echo "Restoring from summary: $LATEST_SUMMARY"
+                    SUMMARY_PROMPT="Please read $LATEST_SUMMARY to recover the context of our last session. Acknowledge the current status and suggest the first task from the 'Consolidated Pending Tasks' list."
+                    NEW_ARGS=("--prompt-interactive" "$SUMMARY_PROMPT" "${NEW_ARGS[@]}")
+                else
+                    echo "No summary found. Starting fresh session..."
+                fi
+                ;;
+        esac
+    fi
+fi
+
+# 3. Execute natively if requested
 if [ "$NOSANDBOX" = true ]; then
     # Find the real gemini binary, excluding this script
-    SCRIPT_PATH=$(cd "$(dirname "$0")" && pwd)/gemini
+    SCRIPT_PATH="$BIN_DIR/gemini"
     REAL_GEMINI=$(which -a gemini | grep -v "$SCRIPT_PATH" | head -n 1)
     
     if [ -z "$REAL_GEMINI" ]; then
@@ -35,11 +108,6 @@ if [ "$NOSANDBOX" = true ]; then
     exec "$REAL_GEMINI" "${NEW_ARGS[@]}"
 fi
 
-# 3. Handle Sandbox Recursion
-if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
-    export SANDBOX="podman"
-    exec gemini "$@"
-fi
-
 # 4. Delegate to gemini-isolate
-exec "$(dirname "$0")/gemini-isolate" "$@"
+# Since we already handled recursion at the top, this is safe
+exec "$BIN_DIR/gemini-isolate" "${NEW_ARGS[@]}"
