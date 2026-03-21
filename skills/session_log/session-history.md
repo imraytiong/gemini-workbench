@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/21/2026] Ingestion Bug Fix & Repo Optimization
+**Timestamp:** `2026-03-21 22:12`
+
+### 📋 Proposed Plan
+Implemented persistent tracking of ingested emails and content-hashed cleanup script. Followed testing mandates with a 12/12 passing baseline and post-fix verification.
+
+### ✅ Execution & Validation
+All 341 duplicates removed. State synchronized. Repositories (brain, journal) are clean and pushed to GitHub.
+
+### 📝 Summary
+- Fixed duplicate voice note ingestion by implementing email Message-ID tracking. - Centralized state management into projects/brain/src/utils.py. - Refactored ResearcherAgent and ingest_plaud.py to use the new state utility. - Cleaned up 341 duplicate voice notes in journal/voice_notes/ via content hashing. - Standardized all 200+ proposals with headers, source linking, and dynamic categories.
+
+### ⏳ Pending Tasks
+- Explore Tier 2 Prototyping agents. - Select a proposal for initial prototyping.
+
+---
+
 ## [3/21/2026] Journal Organization: Migrate Raw Notes
 **Timestamp:** `2026-03-21 16:50`
 
