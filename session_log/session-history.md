@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/20/2026] Glow Installation
+**Timestamp:** `2026-03-21 05:02`
+
+### 📋 Proposed Plan
+Check for glow, check for brew, install glow via brew.
+
+### ✅ Execution & Validation
+Glow 2.1.1 installed successfully.
+
+### 📝 Summary
+Installed the Glow markdown reader via Homebrew to enhance markdown file reading in the terminal.
+
+### ⏳ Pending Tasks
+None
+
+---
+
 ## [3/21/2026] Fix macOS Path Translation
 **Timestamp:** `2026-03-21 02:44`
 
