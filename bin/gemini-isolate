@@ -19,8 +19,23 @@ CONTAINER_GEMINI_HOME="$CONTAINER_HOME/.gemini"
 
 # Detect if we are ALREADY in a sandboxed session to avoid recursion errors
 if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] || [ -f /run/.containerenv ]; then
-    # We are already in an isolated session, run the local gemini instead of trying to isolate again
-    exec gemini "$@"
+    # We are already in an isolated session or we are the Gemini CLI agent itself.
+    # If no arguments, run gemini. If arguments, check if it's a known command or fallback to gemini.
+    if [ $# -eq 0 ]; then
+        exec gemini
+    else
+        case "$1" in
+            python3|node|npm|git|bash|sh|ls|cat|rm|mkdir|cp|mv|pytest)
+                exec "$@"
+                ;;
+            /*|./*|../*)
+                exec "$@"
+                ;;
+            *)
+                exec gemini "$@"
+                ;;
+        esac
+    fi
 fi
 
 # Detect Podman path
@@ -80,4 +95,22 @@ fi
 
 # 5. Run the command inside the Linux container
 export COLORTERM=truecolor
-exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER gemini "$@"
+
+# Default to running 'gemini' if no arguments are provided, otherwise run the provided command
+if [ $# -eq 0 ]; then
+    exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER gemini
+else
+    # Check if the first argument is an absolute path or a known command in common bin dirs
+    # If not, it might be a sub-command for gemini, so we default to gemini "$@"
+    case "$1" in
+        python3|node|npm|git|bash|sh|ls|cat|rm|mkdir|cp|mv)
+            exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER "$@"
+            ;;
+        /*|./*|../*)
+            exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER "$@"
+            ;;
+        *)
+            exec $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER gemini "$@"
+            ;;
+    esac
+fi
