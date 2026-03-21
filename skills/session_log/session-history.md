@@ -1,6 +1,40 @@
 # Gemini Session History
 
 
+## [3/21/2026] ResearcherAgent Integration Evals (Option A)
+**Timestamp:** `2026-03-21 15:24`
+
+### 📋 Proposed Plan
+Enable deterministic and free testing of the ResearcherAgent's semantic logic.
+
+### ✅ Execution & Validation
+Tests passing (4/4) with vcrpy integration; Git pushes globally mocked.
+
+### 📝 Summary
+- Implemented 4 integration tests for ResearcherAgent using vcrpy to record LLM interactions.\n- Refactored ResearcherAgent to use dynamic JOURNAL_REPO_PATH lookup for testability.\n- Verified full 'process_note' flow including state tracking and file generation in a temporary directory.\n- Cassettes (recorded API responses) are now live in brain/tests/cassettes/.
+
+### ⏳ Pending Tasks
+- [Option C] Create setup-machine.sh for environment reproducibility.
+
+---
+
+## [3/21/2026] Testing Infrastructure & Environment Audit
+**Timestamp:** `2026-03-21 15:21`
+
+### 📋 Proposed Plan
+Establish a robust testing baseline and verify Mac Mini readiness.
+
+### ✅ Execution & Validation
+Tests passing in 'brain', gemini-isolate verified, and environment configured.
+
+### 📝 Summary
+- Initialized testing framework in 'brain' with pytest and conftest.py mocks.\n- Authored TESTING_STRATEGY.md for the workbench.\n- Enhanced gemini-isolate to handle arbitrary commands (python3, pytest) via improved recursion logic.\n- Audited Mac Mini environment and fixed PATH in .zshrc for pytest accessibility.\n- Verified sandbox volume mounting and script execution.
+
+### ⏳ Pending Tasks
+- [Option A] Add integration tests for ResearcherAgent using vcrpy.\n- [Option C] Create setup-machine.sh for environment reproducibility.
+
+---
+
 ## [3/21/2026] Standardize Session Recovery
 **Timestamp:** `2026-03-21 02:40`
 
