@@ -8,7 +8,8 @@ Every code modification must follow this non-negotiable lifecycle:
 2.  **Intent Disclosure:** If a change requires modifying an existing test or adding a new one, the **Test Change Intent** must be presented to the user for explicit approval.
 3.  **Surgical Act:** Apply the code modification.
 4.  **Post-Check:** Re-run the test suite.
-5.  **Conflict Resolution:** If a test fails, provide a **Failure Analysis** and a **Recommended Path** (Fix Code vs. Update Test). The user makes the final call.
+5.  **Regression Test Mandate:** If a bug is found or an unintended breakage occurs in an untested area, a new test case MUST be authored to reproduce the failure before the fix is applied.
+6.  **Conflict Resolution:** If a test fails, provide a **Failure Analysis** and a **Recommended Path** (Fix Code vs. Update Test). The user makes the final call.
 
 ## 2. Test Categorization (Pytest Markers)
 To maintain a fast development rhythm, tests are categorized by speed and dependency:

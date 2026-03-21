@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/21/2026] Environment Reproducibility (Option C)
+**Timestamp:** `2026-03-21 15:25`
+
+### 📋 Proposed Plan
+Create a repeatable and deterministic environment for all Gemini CLI activities.
+
+### ✅ Execution & Validation
+Script verified and pushed to main.
+
+### 📝 Summary
+- Authored setup-machine.sh to automate Homebrew, Podman, Nano (with highlighting), Glow, and Python testing suite (pytest, vcrpy) installation.\n- Integrated setup-machine.sh with setup-workbench.sh for a one-stop environment build.\n- Verified script syntax and committed to the workbench repository.
+
+### ⏳ Pending Tasks
+- [Future Machine] Run 'bash setup-machine.sh' on new hardware.\n- [Next Step] Begin Tier 2 Prototyping agents.
+
+---
+
 ## [3/21/2026] ResearcherAgent Integration Evals (Option A)
 **Timestamp:** `2026-03-21 15:24`
 
