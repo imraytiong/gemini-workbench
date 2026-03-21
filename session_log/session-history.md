@@ -1,6 +1,23 @@
 # Gemini Session History
 
 
+## [3/21/2026] Fix macOS Path Translation
+**Timestamp:** `2026-03-21 02:44`
+
+### 📋 Proposed Plan
+Fix path mapping for macOS.
+
+### ✅ Execution & Validation
+Verified path translation logic.
+
+### 📝 Summary
+Fixed the crun chdir error on macOS by translating the host absolute path to the container relative path in bin/gemini-isolate. This ensures the container starts in the correct directory even when host and container paths differ.
+
+### ⏳ Pending Tasks
+- Set up new Mac Mini environment. - Scaffold ADK + Podman project once the machine is ready.
+
+---
+
 ## [3/20/2026] Onboarding Workflow Automation
 **Timestamp:** `2026-03-20 03:31`
 
