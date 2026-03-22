@@ -19,13 +19,17 @@ function findGitRoot(startDir = process.cwd()) {
 
 // Configuration
 const GIT_ROOT = findGitRoot();
-const GLOBAL_LOG_ROOT = path.resolve(__dirname, '../../'); // ~/.gemini/skills/
+const GLOBAL_LOG_ROOT = path.resolve(__dirname, '../../../'); // ~/.gemini/
 
-// Determine the active log root: prefer project-local session_log/ if in a Git repo.
-const LOG_ROOT = GIT_ROOT || GLOBAL_LOG_ROOT;
-const LOG_DIR = path.join(LOG_ROOT, 'session_log');
-const LOG_FILE = path.join(LOG_DIR, 'session-history.md');
-const LATEST_FILE = path.join(LOG_DIR, 'latest-session.md');
+// Determine the active log roots
+const PROJECT_LOG_ROOT = GIT_ROOT;
+const PROJECT_LOG_DIR = PROJECT_LOG_ROOT ? path.join(PROJECT_LOG_ROOT, 'session_log') : null;
+const PROJECT_LOG_FILE = PROJECT_LOG_DIR ? path.join(PROJECT_LOG_DIR, 'session-history.md') : null;
+const PROJECT_LATEST_FILE = PROJECT_LOG_DIR ? path.join(PROJECT_LOG_DIR, 'latest-session.md') : null;
+
+const GLOBAL_LOG_DIR = path.join(GLOBAL_LOG_ROOT, 'session_log');
+const MASTER_LOG_FILE = path.join(GLOBAL_LOG_DIR, 'master-history.md');
+const GLOBAL_LATEST_FILE = path.join(GLOBAL_LOG_DIR, 'latest-session.md');
 
 function getTimestamp() {
     const now = new Date();
@@ -33,152 +37,133 @@ function getTimestamp() {
     return iso.split('.')[0].slice(0, 16).replace('T', ' ');
 }
 
-function getDailyAggregation(logFilePath, dateStr) {
+function getDailySummaryAggregation(logFilePath, dateStr) {
     if (!fs.existsSync(logFilePath)) return null;
     const content = fs.readFileSync(logFilePath, 'utf8');
     
-    // Split by newline followed by ## to avoid splitting on ###
+    // Split by Turn headers
     const sections = content.split('\n## ');
     
-    // The first section might have the main header, but it won't start with [
     const todayEntriesRaw = sections.filter(s => s.trim().startsWith(`[${dateStr}]`));
     
     if (todayEntriesRaw.length === 0) return null;
 
     let combinedSummary = "";
-    let combinedTasks = "";
 
-    // Oldest to newest (todayEntriesRaw is newest to oldest)
+    // Oldest to newest
     const chronologicalEntries = [...todayEntriesRaw].reverse();
 
-    chronologicalEntries.forEach((entry, index) => {
+    chronologicalEntries.forEach((entry) => {
         const titleLine = entry.split('\n')[0];
         const title = titleLine.replace(/\[.*?\] /, '').trim();
         
-        const planPart = entry.split('### 📋 Proposed Plan')[1];
-        const validationPart = entry.split('### ✅ Execution & Validation')[1];
         const summaryPart = entry.split('### 📝 Summary')[1];
-        const tasksPart = entry.split('### ⏳ Pending Tasks')[1];
         
-        if (summaryPart && tasksPart) {
-            const planText = planPart ? planPart.split('###')[0].trim() : "";
-            const validationText = validationPart ? validationPart.split('###')[0].trim() : "";
-            const summaryText = summaryPart.split('### ⏳ Pending Tasks')[0].trim();
-            const tasksText = tasksPart.split('---')[0].trim();
-            
+        if (summaryPart) {
+            const summaryText = summaryPart.split('###')[0].trim();
             combinedSummary += `### ${title}\n`;
-            if (planText) combinedSummary += `#### 📋 Proposed Plan\n${planText}\n\n`;
-            if (validationText) combinedSummary += `#### ✅ Execution & Validation\n${validationText}\n\n`;
             combinedSummary += `#### 📝 Summary\n${summaryText}\n\n`;
-            
-            combinedTasks += `#### From ${title}\n${tasksText}\n\n`;
         }
     });
 
-    return {
-        summary: combinedSummary.trim(),
-        tasks: combinedTasks.trim()
-    };
+    return combinedSummary.trim();
 }
 
-function logSession(title, summary, tasks, plan = "", outcome = "", nextSteps = "") {
+function logToHistory(filePath, entry) {
+    const header = '# Gemini Session History\n\n';
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, header + entry);
+    } else {
+        const currentContent = fs.readFileSync(filePath, 'utf8');
+        const contentWithoutHeader = currentContent.startsWith(header) 
+            ? currentContent.slice(header.length) 
+            : currentContent;
+        
+        const updatedContent = header + entry + contentWithoutHeader;
+        fs.writeFileSync(filePath, updatedContent);
+    }
+}
+
+function logSession(title, summary, nextSteps, plan = "", outcome = "") {
     const timestamp = getTimestamp();
     const dateStr = new Date().toLocaleDateString();
+    const projectName = GIT_ROOT ? path.basename(GIT_ROOT) : "Global";
     
     let historyEntry = `
-## [${dateStr}] ${title}
+## [${dateStr}] [${projectName}] ${title}
 **Timestamp:** \`${timestamp}\`
+**Project:** \`${projectName}\`
 `;
 
-    if (plan) {
-        historyEntry += `
-### 📋 Proposed Plan
-${plan}
-`;
-    }
-
-    if (outcome) {
-        historyEntry += `
-### ✅ Execution & Validation
-${outcome}
-`;
-    }
-
-    historyEntry += `
-### 📝 Summary
-${summary}
-
-### ⏳ Pending Tasks
-${tasks}
-
----
-`;
+    if (plan) historyEntry += `\n### 📋 Proposed Plan\n${plan}\n`;
+    if (outcome) historyEntry += `\n### ✅ Execution & Validation\n${outcome}\n`;
+    historyEntry += `\n### 📝 Summary\n${summary}\n\n### 🚀 Suggested Next Steps\n${nextSteps}\n\n---\n`;
 
     try {
-        if (!fs.existsSync(LOG_DIR)) {
-            fs.mkdirSync(LOG_DIR, { recursive: true });
-        }
+        // 1. Ensure directories exist
+        if (PROJECT_LOG_DIR && !fs.existsSync(PROJECT_LOG_DIR)) fs.mkdirSync(PROJECT_LOG_DIR, { recursive: true });
+        if (!fs.existsSync(GLOBAL_LOG_DIR)) fs.mkdirSync(GLOBAL_LOG_DIR, { recursive: true });
 
-        const header = '# Gemini Session History\n\n';
-        if (!fs.existsSync(LOG_FILE)) {
-            fs.writeFileSync(LOG_FILE, header + historyEntry);
-        } else {
-            const currentContent = fs.readFileSync(LOG_FILE, 'utf8');
-            const contentWithoutHeader = currentContent.startsWith(header) 
-                ? currentContent.slice(header.length) 
-                : currentContent;
-            
-            const updatedContent = header + historyEntry + contentWithoutHeader;
-            fs.writeFileSync(LOG_FILE, updatedContent);
-        }
-
-        const aggregation = getDailyAggregation(LOG_FILE, dateStr);
-        const latestSummary = aggregation && aggregation.summary ? aggregation.summary : summary;
-        const latestTasks = aggregation && aggregation.tasks ? aggregation.tasks : tasks;
-
-        let latestContent = `---
+        // 2. Log to PROJECT file (if in project)
+        if (PROJECT_LOG_FILE) {
+            logToHistory(PROJECT_LOG_FILE, historyEntry);
+            const dailySummary = getDailySummaryAggregation(PROJECT_LOG_FILE, dateStr);
+            const projectLatest = `---
 type: daily-session-capture
 date: ${dateStr}
 last_update: ${timestamp}
 ---
-# Daily Activity Summary: ${dateStr}
+# Project Summary: ${projectName} (${dateStr})
 
-## Detailed Activity Log
-${latestSummary}
+## Daily Activity Log
+${dailySummary || summary}
 
-## Consolidated Pending Tasks
-${latestTasks}
-`;
-
-        if (nextSteps) {
-            latestContent += `
 ## 🚀 Suggested Next Steps
 ${nextSteps}
-`;
-        }
 
-        latestContent += `
 ---
 *Generated by Gemini CLI - Session Logger*
 `;
+            fs.writeFileSync(PROJECT_LATEST_FILE, projectLatest);
+        }
 
-        fs.writeFileSync(LATEST_FILE, latestContent);
+        // 3. Log to GLOBAL Master History
+        logToHistory(MASTER_LOG_FILE, historyEntry);
+        
+        // 4. Update GLOBAL Latest Session (Unified Recall)
+        const dailyGlobalSummary = getDailySummaryAggregation(MASTER_LOG_FILE, dateStr);
+        const globalLatest = `---
+type: global-daily-session-capture
+date: ${dateStr}
+last_update: ${timestamp}
+---
+# Global Session Recall: ${dateStr}
 
-        // If in a Git repository, stage and commit the changes
+## Unified Activity Log (All Projects)
+${dailyGlobalSummary || summary}
+
+## 🚀 Suggested Next Steps (Current)
+[${projectName}] ${nextSteps}
+
+---
+*Generated by Gemini CLI - Session Logger*
+`;
+        fs.writeFileSync(GLOBAL_LATEST_FILE, globalLatest);
+
+        // 5. Git Sync (Project Repo)
         if (GIT_ROOT) {
             process.chdir(GIT_ROOT);
             try {
-                // Check if git user is configured
                 execSync('git config user.name', { stdio: 'ignore' });
-                execSync(`git add -f "${path.relative(GIT_ROOT, LOG_FILE)}" "${path.relative(GIT_ROOT, LATEST_FILE)}"`);
+                execSync(`git add -f "${path.relative(GIT_ROOT, PROJECT_LOG_FILE)}" "${path.relative(GIT_ROOT, PROJECT_LATEST_FILE)}"`);
                 execSync(`git commit -m "docs: session log - ${title}"`);
-                console.log("Committed to Git successfully.");
+                console.log("Project log committed to Git.");
             } catch (gitError) {
-                console.warn("Warning: Git is not configured or commit failed. Skipping commit.");
+                console.warn("Warning: Git commit failed. Skipping.");
             }
         }
 
-        console.log(`Success: Logged "${title}" in ${LOG_ROOT} and updated daily summary.`);
+        console.log(`Success: Logged "${title}" with simplified next steps.`);
     } catch (error) {
         console.error(`Error logging session: ${error.message}`);
         process.exit(1);
@@ -187,8 +172,8 @@ ${nextSteps}
 
 const args = process.argv.slice(2);
 if (args.length < 3) {
-    console.log('Usage: node log_session.cjs "<title>" "<summary>" "<tasks>" ["<plan>"] ["<outcome>"] ["<nextSteps>"]');
+    console.log('Usage: node log_session.cjs "<title>" "<summary>" "<nextSteps>" ["<plan>"] ["<outcome>"]');
     process.exit(1);
 }
 
-logSession(args[0], args[1], args[2], args[3], args[4], args[5]);
+logSession(args[0], args[1], args[2], args[3], args[4]);
