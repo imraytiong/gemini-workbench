@@ -21,7 +21,9 @@ def test_hello_world_agent_end_to_end(sandbox_ready):
         
     # Use -p flag to run in non-interactive mode
     cmd = ["bin/gemini-isolate", "-p", "run agent in examples/hello-world with input 'test'"]
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    
-    assert result.returncode == 0
-    assert "Hello, World!" in result.stdout
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        assert result.returncode == 0
+        assert "Hello, World!" in result.stdout
+    except subprocess.TimeoutExpired:
+        pytest.fail("Agent execution timed out.")

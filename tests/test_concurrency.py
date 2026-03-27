@@ -11,8 +11,18 @@ LOG_SCRIPT = "skills/session-logger/scripts/log_session.cjs"
 def run_log_session(title, summary, next_steps, cwd, plan="", outcome=""):
     env = os.environ.copy()
     env["GEMINI_GLOBAL_LOG_ROOT"] = str(cwd)
-    cmd = ["node", os.path.join(os.getcwd(), LOG_SCRIPT), title, summary, next_steps, plan, outcome]
-    result = subprocess.run(cmd, capture_output=True, text=True, cwd=cwd, env=env)
+    cmd = [
+        "node",
+        os.path.join(os.getcwd(), LOG_SCRIPT),
+        title,
+        summary,
+        next_steps,
+        plan,
+        outcome
+    ]
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, cwd=cwd, env=env
+    )
     return result
 
 def test_concurrent_logging(tmp_path):

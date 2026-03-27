@@ -7,4 +7,4 @@ async function handle(input) {
   return "Hello, World!";
 }
 
-module.exports = { handle };
+export { handle };
