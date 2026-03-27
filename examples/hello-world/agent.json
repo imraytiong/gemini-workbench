@@ -1,0 +1,7 @@
+{
+  "name": "hello-world",
+  "description": "A simple hello world agent for testing the ADK.",
+  "version": "1.0.0",
+  "entry": "index.js",
+  "skills": []
+}

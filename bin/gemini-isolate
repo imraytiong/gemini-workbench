@@ -81,7 +81,7 @@ if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
     $PODMAN start $CONTAINER
 fi
 
-# 4. Map the current working directory from host to container
+# Map the current working directory from host to container
 # If we are in the projects directory, translate the path.
 HOST_CWD=$(pwd)
 if [[ "$HOST_CWD" == "$PROJECTS_DIR"* ]]; then
@@ -96,6 +96,12 @@ fi
 # 5. Run the command inside the Linux container
 export COLORTERM=truecolor
 
+# Determine interactive flags
+PODMAN_FLAGS="-i"
+if [ -t 0 ] && [ "$CI" != "true" ]; then
+    PODMAN_FLAGS="-it"
+fi
+
 # Dry-run support for testing
 if [ "$DRY_RUN" = "1" ]; then
     CMD_PREFIX="echo"
@@ -105,19 +111,19 @@ fi
 
 # Default to running 'gemini' if no arguments are provided, otherwise run the provided command
 if [ $# -eq 0 ]; then
-    $CMD_PREFIX $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER gemini
+    $CMD_PREFIX $PODMAN exec $PODMAN_FLAGS -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER gemini
 else
     # Check if the first argument is an absolute path or a known command in common bin dirs
     # If not, it might be a sub-command for gemini, so we default to gemini "$@"
     case "$1" in
         python3|node|npm|git|bash|sh|ls|cat|rm|mkdir|cp|mv|pytest)
-            $CMD_PREFIX $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER "$@"
+            $CMD_PREFIX $PODMAN exec $PODMAN_FLAGS -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER "$@"
             ;;
         /*|./*|../*)
-            $CMD_PREFIX $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER "$@"
+            $CMD_PREFIX $PODMAN exec $PODMAN_FLAGS -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER "$@"
             ;;
         *)
-            $CMD_PREFIX $PODMAN exec -it -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER gemini "$@"
+            $CMD_PREFIX $PODMAN exec $PODMAN_FLAGS -e COLORTERM=truecolor -e SANDBOX=podman -w "$CONTAINER_CWD" $CONTAINER gemini "$@"
             ;;
     esac
 fi

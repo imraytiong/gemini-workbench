@@ -17,3 +17,18 @@ def mock_podman_exec():
     with patch("subprocess.run") as mock_run:
         mock_run.return_value = MagicMock(stdout="running", stderr="", returncode=0)
         yield mock_run
+
+@pytest.fixture
+def sandbox_ready():
+    """Checks if the Podman sandbox is available and running."""
+    import subprocess
+    try:
+        # Check if podman is installed
+        subprocess.run(["podman", "--version"], capture_output=True, check=True)
+        # Check if container is running
+        result = subprocess.run(["podman", "ps", "--format", "{{.Names}}"], capture_output=True, text=True, check=True)
+        if "gemini-sandbox-container" in result.stdout:
+            return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+    return False
