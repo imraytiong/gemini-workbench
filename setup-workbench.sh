@@ -79,6 +79,20 @@ gemini project add "$PROJECTS_ROOT"
 git config --global --add safe.directory "$WORKBENCH_ROOT"
 git config --global --add safe.directory "$PROJECTS_ROOT"
 
+# 5. Conductor Default Check
+echo "Ensuring Conductor is initialized for registered projects..."
+for project in "$WORKBENCH_ROOT" "$PROJECTS_ROOT"; do
+    if [ -d "$project" ]; then
+        if [ ! -d "$project/conductor" ]; then
+            echo "Conductor not found in $(basename "$project")."
+            # Launch the interactive setup script
+            bash "$WORKBENCH_ROOT/bin/conductor-init" "$project" || true
+        else
+            echo "Conductor already initialized in $(basename "$project")."
+        fi
+    fi
+done
+
 if [ "$IS_SANDBOX" = false ]; then
     # Remove existing container to ensure new environment variables are applied
     CONTAINER="gemini-sandbox-container"
@@ -87,12 +101,12 @@ if [ "$IS_SANDBOX" = false ]; then
         podman rm -f "$CONTAINER"
     fi
 
-    # 5. Build Sandbox Image
+    # 6. Build Sandbox Image
     echo "Building Podman sandbox image..."
     bash "$WORKBENCH_ROOT/bin/build-sandbox"
 fi
 
-# 6. Configure PATH Instructions
+# 7. Configure PATH Instructions
 echo ""
 echo "--- Setup Complete ---"
 echo "To finish the setup, add the workbench 'bin' directory to your PATH."

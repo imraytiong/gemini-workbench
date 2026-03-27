@@ -17,9 +17,30 @@ function findGitRoot(startDir = process.cwd()) {
     return null;
 }
 
+/**
+ * Executes a shell command with a retry mechanism.
+ * @param {string} command The command to execute.
+ * @param {number} maxRetries Maximum number of attempts.
+ */
+function execWithRetry(command, maxRetries = 3) {
+    let attempt = 0;
+    while (attempt < maxRetries) {
+        try {
+            return execSync(command, { stdio: 'pipe' });
+        } catch (error) {
+            attempt++;
+            if (attempt === maxRetries) throw error;
+            console.log(`Command failed: "${command}". Retrying (${attempt}/${maxRetries})...`);
+            // Exponential backoff or simple sleep
+            execSync(`sleep ${attempt}`);
+        }
+    }
+}
+
 // Configuration
 const GIT_ROOT = findGitRoot();
-const GLOBAL_LOG_ROOT = path.resolve(__dirname, '../../../'); // ~/.gemini/
+const DEFAULT_GLOBAL_LOG_ROOT = path.resolve(__dirname, '../../../'); // ~/.gemini/
+const GLOBAL_LOG_ROOT = process.env.GEMINI_GLOBAL_LOG_ROOT || DEFAULT_GLOBAL_LOG_ROOT;
 
 // Determine the active log roots
 const PROJECT_LOG_ROOT = GIT_ROOT;
@@ -84,11 +105,55 @@ function logToHistory(filePath, entry) {
     }
 }
 
+/**
+ * Simple file-based lock.
+ */
+function acquireLock(lockPath, maxRetries = 1000) {
+    let attempts = 0;
+    while (attempts < maxRetries) {
+        try {
+            // 'wx' flag: open for writing, fails if file exists
+            const fd = fs.openSync(lockPath, 'wx');
+            fs.closeSync(fd);
+            return true;
+        } catch (err) {
+            if (err.code !== 'EEXIST') throw err;
+            attempts++;
+            // Random delay between 50ms and 150ms to reduce thundering herd
+            const waitMs = 50 + Math.floor(Math.random() * 100);
+            try {
+                // Use python3 for sub-second sleep as it's more portable than 'sleep 0.x'
+                execSync(`python3 -c "import time; time.sleep(${waitMs / 1000})"`);
+            } catch (e) {
+                // Fallback to integer sleep if python fails
+                execSync(`sleep 1`);
+            }
+        }
+    }
+    throw new Error(`Could not acquire lock on ${lockPath} after ${maxRetries} attempts`);
+}
+
+function releaseLock(lockPath) {
+    try {
+        if (fs.existsSync(lockPath)) {
+            fs.unlinkSync(lockPath);
+        }
+    } catch (err) {
+        // Ignore errors during release
+    }
+}
+
 function logSession(title, summary, nextSteps, plan = "", outcome = "") {
     const timestamp = getTimestamp();
     const dateStr = new Date().toLocaleDateString();
     const projectName = GIT_ROOT ? path.basename(GIT_ROOT) : "Global";
-    
+
+    // Ensure directories exist
+    if (PROJECT_LOG_DIR && !fs.existsSync(PROJECT_LOG_DIR)) fs.mkdirSync(PROJECT_LOG_DIR, { recursive: true });
+    if (!fs.existsSync(GLOBAL_LOG_DIR)) fs.mkdirSync(GLOBAL_LOG_DIR, { recursive: true });
+
+    const lockPath = path.join(GLOBAL_LOG_DIR, '.lock');
+
     let historyEntry = `
 ## [${dateStr}] [${projectName}] ${title}
 **Timestamp:** \`${timestamp}\`
@@ -100,9 +165,7 @@ function logSession(title, summary, nextSteps, plan = "", outcome = "") {
     historyEntry += `\n### 📝 Summary\n${summary}\n\n### 🚀 Suggested Next Steps\n${nextSteps}\n\n---\n`;
 
     try {
-        // 1. Ensure directories exist
-        if (PROJECT_LOG_DIR && !fs.existsSync(PROJECT_LOG_DIR)) fs.mkdirSync(PROJECT_LOG_DIR, { recursive: true });
-        if (!fs.existsSync(GLOBAL_LOG_DIR)) fs.mkdirSync(GLOBAL_LOG_DIR, { recursive: true });
+        acquireLock(lockPath);
 
         // 2. Log to PROJECT file (if in project)
         if (PROJECT_LOG_FILE) {
@@ -154,12 +217,39 @@ ${dailyGlobalSummary || summary}
         if (GIT_ROOT) {
             process.chdir(GIT_ROOT);
             try {
-                execSync('git config user.name', { stdio: 'ignore' });
-                execSync(`git add -f "${path.relative(GIT_ROOT, PROJECT_LOG_FILE)}" "${path.relative(GIT_ROOT, PROJECT_LATEST_FILE)}"`);
-                execSync(`git commit -m "docs: session log - ${title}"`);
-                console.log("Project log committed to Git.");
+                const projectLogRelative = path.relative(GIT_ROOT, PROJECT_LOG_FILE);
+                const projectLatestRelative = path.relative(GIT_ROOT, PROJECT_LATEST_FILE);
+
+                console.log("Syncing session logs to Git...");
+                
+                // Add files
+                execWithRetry(`git add "${projectLogRelative}" "${projectLatestRelative}"`);
+                
+                // Check for changes
+                const status = execSync('git status --porcelain').toString().trim();
+                if (status.includes(projectLogRelative) || status.includes(projectLatestRelative)) {
+                    // Pull to avoid conflicts
+                    try {
+                        execWithRetry('git pull origin main --rebase');
+                    } catch (e) {
+                        // Ignore pull errors in local-only or clean repos, but rebase helps if remote changed
+                    }
+
+                    // Commit
+                    execWithRetry(`git commit -m "docs: session log - ${title}"`);
+                    
+                    // Push
+                    try {
+                        execWithRetry('git push origin main');
+                        console.log("Project logs committed and pushed to Git.");
+                    } catch (e) {
+                        console.warn("Git push failed. Changes remain committed locally.");
+                    }
+                } else {
+                    console.log("No changes in session logs to commit.");
+                }
             } catch (gitError) {
-                console.warn("Warning: Git commit failed. Skipping.");
+                console.error(`Error during Git sync: ${gitError.message}`);
             }
         }
 
@@ -167,6 +257,8 @@ ${dailyGlobalSummary || summary}
     } catch (error) {
         console.error(`Error logging session: ${error.message}`);
         process.exit(1);
+    } finally {
+        releaseLock(lockPath);
     }
 }
 

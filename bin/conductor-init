@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# conductor-init: Initialize Conductor for a project
+# Usage: conductor-init <project_path>
+
+set -e
+
+PROJECT_PATH=$1
+
+if [ -z "$PROJECT_PATH" ]; then
+    echo "Usage: conductor-init <project_path>"
+    exit 1
+fi
+
+if [ ! -d "$PROJECT_PATH" ]; then
+    echo "Error: Project path '$PROJECT_PATH' does not exist."
+    exit 1
+fi
+
+# Check if Conductor is already initialized
+if [ -d "$PROJECT_PATH/conductor" ]; then
+    echo "Conductor is already initialized in '$PROJECT_PATH'."
+    exit 0
+fi
+
+echo "Initializing Conductor in '$PROJECT_PATH'..."
+
+# Launch the Conductor setup command
+# We use 'gemini' if available, otherwise suggest the command
+if command -v gemini &> /dev/null; then
+    echo "Starting Conductor setup via Gemini CLI..."
+    # Note: This will be an interactive process
+    (cd "$PROJECT_PATH" && gemini /conductor:setup)
+else
+    echo "Gemini CLI not found. Please run 'gemini /conductor:setup' in '$PROJECT_PATH' manually."
+fi
