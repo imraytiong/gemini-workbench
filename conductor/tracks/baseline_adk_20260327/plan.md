@@ -22,3 +22,6 @@
     - [x] Update `tests/conftest.py` to support ADK environment mocking.
     - [x] Add `test_adk_baseline.py` to verify the end-to-end flow.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: ADK Environment & Verification' (Protocol in workflow.md)
+
+## Phase: Review Fixes
+- [x] Task: Apply review suggestions 423829d
