@@ -1,0 +1,8 @@
+{
+  "track_id": "baseline_adk_20260327",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-03-27T10:00:00Z",
+  "updated_at": "2026-03-27T10:00:00Z",
+  "description": "Establish baseline ADK agent development and testing environment"
+}
