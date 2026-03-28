@@ -55,6 +55,23 @@ for skill in "$WORKBENCH_ROOT/skills"/*; do
     fi
 done
 
+# Standardize Policy Storage
+POLICIES_DIR="$HOME/.gemini/policies"
+echo "Setting up safety policies in $HOME/.gemini/policies..."
+mkdir -p "$POLICIES_DIR"
+
+# Link policies from the workbench itself
+echo "Checking workbench policies..."
+if [ -d "$WORKBENCH_ROOT/policies" ]; then
+    for policy in "$WORKBENCH_ROOT/policies"/*; do
+        if [ -f "$policy" ]; then
+            POLICY_NAME=$(basename "$policy")
+            echo "Linking workbench policy: $POLICY_NAME"
+            ln -sfn "$policy" "$POLICIES_DIR/$POLICY_NAME"
+        fi
+    done
+fi
+
 # Scan sibling projects for skills/ directories and link them
 echo "Scanning sibling projects for additional skills..."
 for project in "$PROJECTS_ROOT"/*; do

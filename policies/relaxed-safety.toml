@@ -1,0 +1,170 @@
+# Workspace-level relaxed safety policy for Gemini CLI
+# Rules are prioritized: High priority (100) overrides lower ones.
+
+# 1. READ-ONLY OPERATIONS: AUTO-APPROVE
+[[rule]]
+toolName = "read_file"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "grep_search"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "list_directory"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "glob"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "web_fetch"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "google_web_search"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "cli_help"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "codebase_investigator"
+decision = "allow"
+priority = 100
+
+# 2. FILE EDITING: AUTO-APPROVE
+[[rule]]
+toolName = "write_file"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "replace"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "save_memory"
+decision = "allow"
+priority = 100
+
+# 3. SAFE SHELL COMMANDS: AUTO-APPROVE
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "git status"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "git diff"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "git log"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "npm test"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "ls"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "cat"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "echo"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "pwd"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "date"
+decision = "allow"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "whoami"
+decision = "allow"
+priority = 100
+
+# 4. TEMPORARY FILE REMOVALS: AUTO-APPROVE
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "rm -rf .tmp"
+decision = "allow"
+priority = 110
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "rm -rf build"
+decision = "allow"
+priority = 110
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "rm .tmp"
+decision = "allow"
+priority = 110
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "rm build"
+decision = "allow"
+priority = 110
+
+# 5. RESTRICTIVE REMOVALS: ASK USER (EXPLICIT)
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "rm"
+decision = "ask_user"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "git rm"
+decision = "ask_user"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "git reset"
+decision = "ask_user"
+priority = 100
+
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "git checkout"
+decision = "ask_user"
+priority = 100
