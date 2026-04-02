@@ -19,6 +19,21 @@ fi
 BIN_DIR=$(cd "$(dirname "$0")" && pwd)
 WORKBENCH_ROOT=$(dirname "$BIN_DIR")
 
+# Find the real gemini binary, excluding this script
+SCRIPT_PATH="$BIN_DIR/gemini"
+REAL_GEMINI=$(which -a gemini | grep -v "$SCRIPT_PATH" | head -n 1)
+
+if [ -z "$REAL_GEMINI" ]; then
+    # Fallback to common npm global path if not found in PATH
+    NPM_BIN=$(npm config get prefix 2>/dev/null)/bin/gemini
+    if [ -f "$NPM_BIN" ]; then
+        REAL_GEMINI="$NPM_BIN"
+    else
+        echo "Error: Could not find the native 'gemini' binary. Is it installed via npm?"
+        exit 1
+    fi
+fi
+
 # 1. Check for flags that should skip restoration
 NOSANDBOX=false
 HAS_RESUME=false
@@ -57,9 +72,9 @@ if [ -t 0 ] && [ "$HAS_RESUME" = false ] && [ "$HAS_PROMPT" = false ] && [ "$SKI
         LATEST_SUMMARY="$HOME/.gemini/session_log/latest-session.md"
     fi
 
-    # Check for perfect memory sessions (native)
+    # Check for perfect memory sessions natively to avoid invoking sandbox
     # This will be consistent if ~/.gemini is shared between host and container
-    HAS_SESSIONS=$(gemini --list-sessions 2>/dev/null | grep -c "\.")
+    HAS_SESSIONS=$("$REAL_GEMINI" --list-sessions 2>/dev/null | grep -c "\.")
 
     if [ -n "$LATEST_SUMMARY" ] || [ $HAS_SESSIONS -gt 0 ]; then
         echo -n "Restore session? [(S)ummary / (p)erfect / (n)o] "
@@ -89,21 +104,6 @@ fi
 
 # 3. Execute natively if requested
 if [ "$NOSANDBOX" = true ]; then
-    # Find the real gemini binary, excluding this script
-    SCRIPT_PATH="$BIN_DIR/gemini"
-    REAL_GEMINI=$(which -a gemini | grep -v "$SCRIPT_PATH" | head -n 1)
-    
-    if [ -z "$REAL_GEMINI" ]; then
-        # Fallback to common npm global path if not found in PATH
-        NPM_BIN=$(npm config get prefix)/bin/gemini
-        if [ -f "$NPM_BIN" ]; then
-            REAL_GEMINI="$NPM_BIN"
-        else
-            echo "Error: Could not find the native 'gemini' binary. Is it installed via npm?"
-            exit 1
-        fi
-    fi
-    
     # Run the native gemini with the filtered arguments
     exec "$REAL_GEMINI" "${NEW_ARGS[@]}"
 fi

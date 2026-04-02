@@ -41,18 +41,64 @@ fi
 # Detect Podman path
 PODMAN=$(which podman 2>/dev/null || echo "/opt/podman/bin/podman")
 
+if ! command -v "$PODMAN" >/dev/null 2>&1; then
+    echo "Error: Podman not found. Please install Podman or use --nosandbox."
+    exit 1
+fi
+
+# Helper function to fast fail unresponsive commands
+run_with_timeout() {
+    local timeout=$1
+    shift
+    "$@" &
+    local pid=$!
+    local count=0
+    while kill -0 $pid 2>/dev/null; do
+        if [ $count -ge $timeout ]; then
+            kill -9 $pid 2>/dev/null
+            return 124
+        fi
+        sleep 1
+        count=$((count+1))
+    done
+    wait $pid
+    return $?
+}
+
 # 1. Ensure Podman machine is running (on macOS/Windows)
 if [[ "$OSTYPE" == "darwin"* ]]; then
     MACHINE="podman-machine-default"
-    STATUS=$($PODMAN machine inspect $MACHINE --format "{{.State}}" 2>/dev/null)
+    STATUS=$(run_with_timeout 3 "$PODMAN" machine inspect $MACHINE --format "{{.State}}" 2>/dev/null)
+    RET=$?
+    
+    if [ $RET -eq 124 ]; then
+        echo "Error: Podman is unresponsive (timed out after 3s)."
+        echo "Please restart Podman or use --nosandbox to bypass the sandbox."
+        exit 1
+    elif [ $RET -ne 0 ]; then
+        echo "Error: Podman machine '$MACHINE' does not exist or failed to inspect."
+        echo "Please initialize Podman or use --nosandbox."
+        exit 1
+    fi
+
     if [ "$STATUS" != "running" ]; then
         echo "Starting Podman machine ($MACHINE)..."
-        $PODMAN machine start
+        if ! run_with_timeout 30 "$PODMAN" machine start; then
+            echo "Error: Failed to start Podman machine or it timed out."
+            echo "Please check Podman Desktop or use --nosandbox."
+            exit 1
+        fi
     fi
 fi
 
 # 2. Ensure the container exists
-if ! $PODMAN ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
+if ! run_with_timeout 3 "$PODMAN" ps -a --format "{{.Names}}" >/dev/null 2>&1; then
+    echo "Error: Podman API is unresponsive."
+    echo "Please check Podman Desktop or use --nosandbox."
+    exit 1
+fi
+
+if ! "$PODMAN" ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
     echo "Creating $CONTAINER from $IMAGE_NAME..."
     
     # Check if image exists
