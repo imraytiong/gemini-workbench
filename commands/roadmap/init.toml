@@ -1,0 +1,6 @@
+description = "Initialize the project ROADMAP.md"
+prompt = """
+!{node ~/.gemini/skills/roadmap-architect/scripts/init_roadmap.cjs}
+
+The roadmap initialization script has completed. Please review the output above and advise on the next steps or show me the ROADMAP.md file.
+"""

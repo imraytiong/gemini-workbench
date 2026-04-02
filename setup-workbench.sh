@@ -55,6 +55,23 @@ for skill in "$WORKBENCH_ROOT/skills"/*; do
     fi
 done
 
+# Standardize Commands Storage
+COMMANDS_DIR="$HOME/.gemini/commands"
+echo "Setting up custom commands in $HOME/.gemini/commands..."
+mkdir -p "$COMMANDS_DIR"
+
+# Link commands from the workbench itself
+echo "Checking workbench commands..."
+if [ -d "$WORKBENCH_ROOT/commands" ]; then
+    for cmd in "$WORKBENCH_ROOT/commands"/*; do
+        if [ -e "$cmd" ]; then
+            CMD_NAME=$(basename "$cmd")
+            echo "Linking workbench command: $CMD_NAME"
+            ln -sfn "$cmd" "$COMMANDS_DIR/$CMD_NAME"
+        fi
+    done
+fi
+
 # Standardize Policy Storage
 POLICIES_DIR="$HOME/.gemini/policies"
 echo "Setting up safety policies in $HOME/.gemini/policies..."

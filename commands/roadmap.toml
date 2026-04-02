@@ -1,0 +1,9 @@
+description = "Show roadmap commands"
+prompt = """
+The available roadmap commands are:
+- `/roadmap:init` - Initialize the project ROADMAP.md
+- `/roadmap:milestone <name>` - Create a new roadmap milestone
+- `/roadmap:tracks <track-id> [track-title]` - Generate Conductor tracks
+
+Please let the user know what these commands are.
+"""
