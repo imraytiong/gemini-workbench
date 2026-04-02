@@ -1,6 +1,19 @@
 # Gemini Session History
 
 
+## [4/2/2026] [gemini-workbench] Fixed Podman Dependency and Hangs
+**Timestamp:** `2026-04-02 21:17`
+**Project:** `gemini-workbench`
+
+### 📝 Summary
+Resolved issues with the Gemini CLI wrapper hanging when Podman is unresponsive. Updated 'bin/gemini' to fully bypass Podman checks natively if '--nosandbox' is used. Added a bash timeout helper to 'bin/gemini-isolate' to fast-fail with an actionable error message if the Podman machine or container API takes more than 3 seconds to respond.
+
+### 🚀 Suggested Next Steps
+- Continue testing the custom /roadmap commands.
+- Verify the fast-fail behavior by intentionally stopping the Podman machine.
+
+---
+
 ## [4/2/2026] [gemini-workbench] Built Roadmap Architect Skill
 **Timestamp:** `2026-04-02 21:13`
 **Project:** `gemini-workbench`
