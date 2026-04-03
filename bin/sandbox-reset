@@ -8,6 +8,15 @@ set -e
 # Detect Podman path
 PODMAN=$(which podman 2>/dev/null || echo "/opt/podman/bin/podman")
 MACHINE="podman-machine-default"
+DRY_RUN=0
+
+# Parse arguments
+for arg in "$@"; do
+    if [ "$arg" == "--dry-run" ]; then
+        DRY_RUN=1
+        echo "🏃 Running in DRY-RUN mode. No changes will be applied."
+    fi
+done
 
 # Helper function to prevent hangs
 run_with_timeout() {
@@ -30,38 +39,73 @@ run_with_timeout() {
 
 echo "Starting Podman recovery sequence..."
 
+# 0. Check for external mounts (if machine is responsive enough)
+echo "Checking for external mounts..."
+MOUNT_INFO=$(run_with_timeout 5 "$PODMAN" machine ssh mount 2>/dev/null | grep "/Volumes/" || true)
+if [ -n "$MOUNT_INFO" ]; then
+    echo "⚠️  Warning: Active external mounts detected in VM:"
+    echo "   $MOUNT_INFO"
+    echo "   Restarting with external mounts can cause hangs if the physical drive is slow or disconnected."
+fi
+
 # 1. Attempt Soft Reset
 echo "Attempting soft stop (10s timeout)..."
-if run_with_timeout 10 "$PODMAN" machine stop "$MACHINE"; then
-    echo "Soft stop successful."
+if [ $DRY_RUN -eq 1 ]; then
+    echo "[DRY-RUN] Would run: $PODMAN machine stop $MACHINE"
 else
-    echo "Soft stop failed or timed out. Initiating hard reset..."
-    
-    # 2. Hard Reset: Kill orphaned processes (macOS specific)
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "Cleaning up orphaned VM processes (gvproxy, qemu, vfkit, krun, podman)..."
+    if run_with_timeout 10 "$PODMAN" machine stop "$MACHINE"; then
+        echo "Soft stop successful."
+    else
+        echo "Soft stop failed or timed out. Initiating hard reset..."
         
-        # We use 'pkill -9' for immediate termination of these specific processes
-        pkill -9 gvproxy || true
-        pkill -9 qemu-system-aarch64 || true
-        pkill -9 vfkit || true
-        pkill -9 krun || true
-        pkill -9 -f "podman" || true
-        
-        # Clean up stale sockets/locks
-        rm -f "$HOME/.local/share/containers/podman/machine/machine-start.lock" 2>/dev/null || true
-        # Find and remove temp sockets
-        TEMP_DIR=$(dirname $(dirname $(find /var/folders -name "$MACHINE-gvproxy.sock*" 2>/dev/null | head -n 1) 2>/dev/null) 2>/dev/null)
-        if [ -n "$TEMP_DIR" ] && [ "$TEMP_DIR" != "." ]; then
-            rm -f "$TEMP_DIR/$MACHINE"*.sock 2>/dev/null || true
+        # 2. Hard Reset: Kill orphaned processes (macOS specific)
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            echo "Cleaning up orphaned VM processes (gvproxy, qemu, vfkit, krun, podman)..."
+            
+            # Identify processes
+            PIDS=$(pgrep -f "gvproxy|qemu-system-aarch64|vfkit|krun|podman" || true)
+            if [ -n "$PIDS" ]; then
+                echo "[DRY-RUN] Would kill processes: $PIDS"
+                if [ $DRY_RUN -eq 0 ]; then
+                    pkill -9 gvproxy || true
+                    pkill -9 qemu-system-aarch64 || true
+                    pkill -9 vfkit || true
+                    pkill -9 krun || true
+                    pkill -9 -f "podman" || true
+                fi
+            fi
+            
+            # Clean up stale sockets/locks
+            LOCK_FILE="$HOME/.local/share/containers/podman/machine/machine-start.lock"
+            if [ -f "$LOCK_FILE" ]; then
+                echo "[DRY-RUN] Would remove lock file: $LOCK_FILE"
+                [ $DRY_RUN -eq 0 ] && rm -f "$LOCK_FILE"
+            fi
+
+            # Find and remove temp sockets
+            TEMP_SOCKET=$(find /var/folders -name "$MACHINE-gvproxy.sock*" 2>/dev/null | head -n 1 || true)
+            if [ -n "$TEMP_SOCKET" ]; then
+                TEMP_DIR=$(dirname $(dirname "$TEMP_SOCKET" 2>/dev/null) 2>/dev/null)
+                if [ -n "$TEMP_DIR" ] && [ "$TEMP_DIR" != "." ]; then
+                    echo "[DRY-RUN] Would remove sockets in: $TEMP_DIR"
+                    [ $DRY_RUN -eq 0 ] && rm -f "$TEMP_DIR/$MACHINE"*.sock 2>/dev/null
+                fi
+            fi
+        fi
+
+        # Final attempt to stop after force killing orphans
+        if [ $DRY_RUN -eq 0 ]; then
+            run_with_timeout 5 "$PODMAN" machine stop "$MACHINE" || true
         fi
     fi
-
-    # Final attempt to stop after force killing orphans
-    run_with_timeout 5 "$PODMAN" machine stop "$MACHINE" || true
 fi
 
 # 3. Restart the Machine
+if [ $DRY_RUN -eq 1 ]; then
+    echo "[DRY-RUN] Would run: $PODMAN machine start $MACHINE"
+    exit 0
+fi
+
 echo "Starting Podman machine ($MACHINE)... This may take up to 2 minutes."
 set +e
 run_with_timeout 120 "$PODMAN" machine start "$MACHINE"
