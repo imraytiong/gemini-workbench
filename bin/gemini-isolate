@@ -73,8 +73,21 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     
     if [ $RET -eq 124 ]; then
         echo "Error: Podman is unresponsive (timed out after 3s)."
-        echo "Please restart Podman or use --nosandbox to bypass the sandbox."
-        exit 1
+        echo -n "Attempt automated recovery? [Y/n] "
+        read -r recovery_response
+        recovery_response=${recovery_response:-Y}
+        if [[ "$recovery_response" =~ ^[Yy] ]]; then
+            # Call the reset script
+            if "$BIN_DIR/sandbox-reset"; then
+                echo "Recovery successful. Retrying original command..."
+            else
+                echo "Recovery failed. Please check Podman Desktop or use --nosandbox."
+                exit 1
+            fi
+        else
+            echo "Skipping recovery. Please restart Podman or use --nosandbox."
+            exit 1
+        fi
     elif [ $RET -ne 0 ]; then
         echo "Error: Podman machine '$MACHINE' does not exist or failed to inspect."
         echo "Please initialize Podman or use --nosandbox."
