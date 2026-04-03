@@ -1,6 +1,18 @@
 # Gemini Session History
 
 
+## [4/2/2026] [gemini-workbench] Implement Podman Auto-Recovery and Refactor Roadmap Commands
+**Timestamp:** `2026-04-03 05:16`
+**Project:** `gemini-workbench`
+
+### 📝 Summary
+* Refactored roadmap commands and skill by moving them from .gemini/ to project root and creating symlinks. * Updated bin/sandbox-reset with enhanced Podman recovery logic, including process cleanup and state verification. * Initialized a new Conductor track for 'Podman Auto-Recovery'.
+
+### 🚀 Suggested Next Steps
+* Verify the auto-recovery logic by inducing a Podman hang. * Complete the 'Podman Auto-Recovery' track implementation. * Audit the global slash commands for consistency.
+
+---
+
 ## [4/2/2026] [gemini-workbench] Globalize Roadmap Commands and Skill
 **Timestamp:** `2026-04-02 21:24`
 **Project:** `gemini-workbench`

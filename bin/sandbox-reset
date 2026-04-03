@@ -39,17 +39,22 @@ else
     
     # 2. Hard Reset: Kill orphaned processes (macOS specific)
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "Cleaning up orphaned VM processes (gvproxy, qemu, vfkit)..."
+        echo "Cleaning up orphaned VM processes (gvproxy, qemu, vfkit, krun, podman)..."
         
         # We use 'pkill -9' for immediate termination of these specific processes
-        # gvproxy: Podman's networking
-        # qemu-system-aarch64 / vfkit: The actual VM process
         pkill -9 gvproxy || true
         pkill -9 qemu-system-aarch64 || true
         pkill -9 vfkit || true
+        pkill -9 krun || true
+        pkill -9 -f "podman" || true
         
-        # Clean up stale sockets/locks if they exist in common locations
-        rm -f "$HOME/.config/containers/podman/machine/qemu/$MACHINE.sock" 2>/dev/null || true
+        # Clean up stale sockets/locks
+        rm -f "$HOME/.local/share/containers/podman/machine/machine-start.lock" 2>/dev/null || true
+        # Find and remove temp sockets
+        TEMP_DIR=$(dirname $(dirname $(find /var/folders -name "$MACHINE-gvproxy.sock*" 2>/dev/null | head -n 1) 2>/dev/null) 2>/dev/null)
+        if [ -n "$TEMP_DIR" ] && [ "$TEMP_DIR" != "." ]; then
+            rm -f "$TEMP_DIR/$MACHINE"*.sock 2>/dev/null || true
+        fi
     fi
 
     # Final attempt to stop after force killing orphans
@@ -57,10 +62,30 @@ else
 fi
 
 # 3. Restart the Machine
-echo "Starting Podman machine ($MACHINE)..."
-if run_with_timeout 45 "$PODMAN" machine start "$MACHINE"; then
+echo "Starting Podman machine ($MACHINE)... This may take up to 2 minutes."
+set +e
+run_with_timeout 120 "$PODMAN" machine start "$MACHINE"
+START_RET=$?
+set -e
+
+# Sometimes the start command times out but the machine actually comes up.
+# Let's verify the actual state before failing.
+ACTUAL_STATE=$("$PODMAN" machine ls --format '{{.LastUp}}' | grep -v "stopped" || true)
+
+if [[ "$ACTUAL_STATE" == *"Currently running"* || "$ACTUAL_STATE" == *"Currently starting"* ]]; then
+    echo "✅ Podman machine is coming online (State: $ACTUAL_STATE)."
+    exit 0
+elif [ $START_RET -eq 0 ]; then
     echo "✅ Podman machine is back online."
+    exit 0
+elif [ $START_RET -eq 124 ]; then
+    echo "❌ Error: Timed out after 120s waiting for Podman machine to start."
+    echo "The VM may be stuck in an emergency shell or boot loop."
+    echo "You may need to completely rebuild it: podman machine rm -f $MACHINE && podman machine init && podman machine start"
+    exit 1
 else
-    echo "❌ Error: Failed to restart Podman machine after recovery."
+    echo "❌ Error: Failed to restart Podman machine (Exit code: $START_RET)."
+    echo "The VM may be stuck in an emergency shell or corrupted."
+    echo "You may need to completely rebuild it: podman machine rm -f $MACHINE && podman machine init && podman machine start"
     exit 1
 fi
