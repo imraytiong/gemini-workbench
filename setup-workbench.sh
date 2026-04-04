@@ -17,14 +17,19 @@ fi
 
 for cmd in node npm git gemini; do
     if ! command -v $cmd &> /dev/null; then
-        echo "Error: $cmd is not installed. Please install it before running this script."
+        echo "Error: $cmd is not installed."
+        case $cmd in
+            node|npm) echo "Please install Node.js/npm (e.g., 'brew install node')." ;;
+            git) echo "Please install Git (e.g., 'brew install git')." ;;
+            gemini) echo "Please install the Gemini CLI via npm." ;;
+        esac
         exit 1
     fi
 done
 
 if [ "$IS_SANDBOX" = false ]; then
     if ! command -v podman &> /dev/null; then
-        echo "Error: podman is not installed. Please install it before running this script."
+        echo "Error: Podman is not installed. Please install Podman Desktop or podman CLI."
         exit 1
     fi
 fi
@@ -106,12 +111,22 @@ done
 
 # 4. Register Projects
 echo "Registering projects with Gemini CLI..."
-gemini project add "$WORKBENCH_ROOT"
-gemini project add "$PROJECTS_ROOT"
+for project in "$WORKBENCH_ROOT" "$PROJECTS_ROOT"; do
+    if ! gemini project list | grep -q "$project"; then
+        echo "Adding $project to Gemini CLI..."
+        gemini project add "$project"
+    else
+        echo "Project $project already registered."
+    fi
+done
 
 # Ensure Git trusts these directories (prevents "dubious ownership" errors)
-git config --global --add safe.directory "$WORKBENCH_ROOT"
-git config --global --add safe.directory "$PROJECTS_ROOT"
+for dir in "$WORKBENCH_ROOT" "$PROJECTS_ROOT"; do
+    if ! git config --global --get-all safe.directory | grep -q "$dir"; then
+        echo "Configuring Git safe.directory for $dir..."
+        git config --global --add safe.directory "$dir"
+    fi
+done
 
 # 5. Conductor Default Check
 echo "Ensuring Conductor is initialized for registered projects..."
@@ -136,10 +151,17 @@ if [ "$IS_SANDBOX" = false ]; then
     fi
 
     # 6. Build Sandbox Image
-    echo "Building Podman sandbox image..."
-    bash "$WORKBENCH_ROOT/bin/build-sandbox"
-fi
+    BUILD_SANDBOX=true
+    if [[ "$1" == "--no-build" ]]; then
+        BUILD_SANDBOX=false
+    fi
 
+    if [ "$IS_SANDBOX" = false ] && [ "$BUILD_SANDBOX" = true ]; then
+        echo "Building Podman sandbox image..."
+        bash "$WORKBENCH_ROOT/bin/build-sandbox"
+    elif [ "$BUILD_SANDBOX" = false ]; then
+        echo "Skipping sandbox image build as requested."
+    fi
 # 7. Configure PATH Instructions
 echo ""
 echo "--- Setup Complete ---"
