@@ -1,6 +1,18 @@
 # Gemini Session History
 
 
+## [4/4/2026] [gemini-workbench] Release 1.1 Stabilization & Setup
+**Timestamp:** `2026-04-04 16:25`
+**Project:** `gemini-workbench`
+
+### 📝 Summary
+Defined the Release 1.1 milestone focusing on public, open-source readiness. Removed the flaky Podman recovery scripts (sandbox-reset) and integrated logic from gemini-isolate. Scaffolded tracks for upcoming Privacy & Security Sanitization.
+
+### 🚀 Suggested Next Steps
+Begin auditing the codebase for hardcoded private paths (/Users/raytiongai) and sensitive information under the privacy-security-sanitization track.
+
+---
+
 ## [4/4/2026] [gemini-workbench] v1.0 Baseline Validation
 **Timestamp:** `2026-04-04 16:05`
 **Project:** `gemini-workbench`
