@@ -1,8 +1,13 @@
 import pytest
 import subprocess
 import os
+from pathlib import Path
+import getpass
 
-ISOLATE_PATH = "/Users/raytiongai/projects/gemini-workbench/bin/gemini-isolate"
+# Dynamically resolve paths relative to the project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+ISOLATE_PATH = str(PROJECT_ROOT / "bin" / "gemini-isolate")
+PROJECTS_DIR = PROJECT_ROOT.parent
 
 def run_isolate(args, env_vars=None, cwd=None):
     """Run gemini-isolate with specific environment and arguments."""
@@ -22,10 +27,11 @@ def run_isolate(args, env_vars=None, cwd=None):
 def test_isolate_recursion_handling():
     """Test that isolate runs the local 'gemini' when already in a sandbox."""
     # Mocking that we are already in the sandbox
-    env_vars = {"GEMINI_CLI": "1", "PATH": f"/Users/raytiongai/projects/gemini-workbench/bin:{os.environ['PATH']}"}
+    bin_path = str(PROJECT_ROOT / "bin")
+    env_vars = {"GEMINI_CLI": "1", "PATH": f"{bin_path}:{os.environ['PATH']}"}
     
     # We use 'ls' because it's in the allowed list for direct execution
-    result = run_isolate(["ls"], env_vars=env_vars)
+    result = run_isolate(["ls"], env_vars=env_vars, cwd=str(PROJECT_ROOT))
     assert result.returncode == 0
     assert "tests" in result.stdout  # We should see the tests dir in current CWD
 
@@ -35,20 +41,24 @@ def test_isolate_path_translation_dry_run():
     env_vars = {
         "DRY_RUN": "1",
         "GEMINI_CLI": "0",
-        "PODMAN": "echo_podman" # Force use of a specific string to verify
+        "PODMAN": "echo_podman", # Force use of a specific string to verify
+        "USER": "testuser"
     }
     # Mocking environment to avoid real podman machine start
     # We need to bypass the recursion check
     os.environ["GEMINI_CLI"] = "0"
     os.environ["GEMINI_SANDBOX"] = "0"
 
-    cwd = "/Users/raytiongai/projects/brain"
+    # Use the current user to match what gemini-isolate will resolve
+    host_user = getpass.getuser()
+    cwd = str(PROJECTS_DIR / "brain")
+    
     result = run_isolate(["python3", "--version"], env_vars=env_vars, cwd=cwd)
     
     # Verify the output contains the translated path
-    # Host: /Users/raytiongai/projects/brain
-    # Container: /home/raytiongai/projects/brain
-    assert "-w /home/raytiongai/projects/brain" in result.stdout
+    # Host: /path/to/projects/brain
+    # Container: /home/<user>/projects/brain
+    assert f"-w /home/{host_user}/projects/brain" in result.stdout
     assert "gemini-sandbox-container python3 --version" in result.stdout
 
 def test_isolate_no_args_defaults_to_gemini():

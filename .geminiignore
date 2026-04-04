@@ -1,0 +1,8 @@
+tmp/
+session_log/
+skills/session_log/
+skills/session_logs/
+__pycache__/
+*.pyc
+*.pyo
+*.log

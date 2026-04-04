@@ -1,1 +1,10 @@
 \n# Debug logs\npodman_debug*.log\n\n# Python Cache\n__pycache__/
+
+# Session logs and histories
+session_log/*
+!session_log/.gitkeep
+skills/session_log/*
+!skills/session_log/.gitkeep
+skills/session_logs/*
+!skills/session_logs/.gitkeep
+
