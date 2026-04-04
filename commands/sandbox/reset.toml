@@ -1,6 +1,0 @@
-description = "Hard reset the Podman sandbox when it is wedged or unresponsive."
-prompt = """
-!{bin/sandbox-reset}
-
-The sandbox reset script has finished. Please check if Podman is back online and if our session context is still available.
-"""

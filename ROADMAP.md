@@ -2,16 +2,16 @@
 
 ## NOW
 *Active milestones and imminent capabilities.*
-- [**Milestone Name**](milestones/milestone_file.md): Summary of the objective.
+- [**Portable Safety Policies**](milestones/portable_safety_policies.md): Transitioning workspace-specific safety policies.
+- [**Roadmap Architect**](milestones/roadmap_architect.md): Building the strategy-to-execution skill.
 
 ## SOON
 *Priority features and technical debt (1-3 month horizon).*
-- Feature A: Description.
-- Technical Debt B: Description.
+- [**Release 1.1 - Open Source & Team Readiness**](milestones/release_1_1.md): Transition from a private tool to a public, team-ready, open-source environment.
 
 ## LATER
 *Long-term vision and conceptually "fuzzy" ideas.*
-- Vision C: Description.
+- **Container Runtime Resiliency**: Podman auto-recovery, hard resets, or seamless switching to Docker. (Moved out of immediate scope due to environmental flakiness).
 
 ---
 ## Categories

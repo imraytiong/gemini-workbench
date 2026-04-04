@@ -66,28 +66,15 @@ run_with_timeout() {
 }
 
 # 1. Ensure Podman machine is running (on macOS/Windows)
-if [[ "$OSTYPE" == "darwin"* ]]; then
+if [ "$DRY_RUN" != "1" ] && [[ "$OSTYPE" == "darwin"* ]]; then
     MACHINE="podman-machine-default"
     STATUS=$(run_with_timeout 3 "$PODMAN" machine inspect $MACHINE --format "{{.State}}" 2>/dev/null)
     RET=$?
     
     if [ $RET -eq 124 ]; then
         echo "Error: Podman is unresponsive (timed out after 3s)."
-        echo -n "Attempt automated recovery? [Y/n] "
-        read -r recovery_response
-        recovery_response=${recovery_response:-Y}
-        if [[ "$recovery_response" =~ ^[Yy] ]]; then
-            # Call the reset script
-            if "$BIN_DIR/sandbox-reset"; then
-                echo "Recovery successful. Retrying original command..."
-            else
-                echo "Recovery failed. Please check Podman Desktop or use --nosandbox."
-                exit 1
-            fi
-        else
-            echo "Skipping recovery. Please restart Podman or use --nosandbox."
-            exit 1
-        fi
+        echo "Please check Podman Desktop or use --nosandbox."
+        exit 1
     elif [ $RET -ne 0 ]; then
         echo "Error: Podman machine '$MACHINE' does not exist or failed to inspect."
         echo "Please initialize Podman or use --nosandbox."
@@ -105,13 +92,13 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 # 2. Ensure the container exists
-if ! run_with_timeout 3 "$PODMAN" ps -a --format "{{.Names}}" >/dev/null 2>&1; then
+if [ "$DRY_RUN" != "1" ] && ! run_with_timeout 3 "$PODMAN" ps -a --format "{{.Names}}" >/dev/null 2>&1; then
     echo "Error: Podman API is unresponsive."
     echo "Please check Podman Desktop or use --nosandbox."
     exit 1
 fi
 
-if ! "$PODMAN" ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
+if [ "$DRY_RUN" != "1" ] && ! "$PODMAN" ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
     echo "Creating $CONTAINER from $IMAGE_NAME..."
     
     # Check if image exists
@@ -135,7 +122,7 @@ if ! "$PODMAN" ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
 fi
 
 # 3. Ensure the container is running
-if ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
+if [ "$DRY_RUN" != "1" ] && ! $PODMAN ps --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
     echo "Starting $CONTAINER..."
     $PODMAN start $CONTAINER
 fi
