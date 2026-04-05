@@ -1,6 +1,24 @@
 # Gemini Session History
 
 
+## [4/5/2026] [gemini-workbench] Extract Remember Extension
+**Timestamp:** `2026-04-05 17:26`
+**Project:** `gemini-workbench`
+
+### 📋 Proposed Plan
+Extract the session-logger skill from gemini-workbench and package it as a standalone Gemini CLI extension.
+
+### ✅ Execution & Validation
+Successfully extracted, published to GitHub, and integrated back into the workbench workflow.
+
+### 📝 Summary
+Extracted the session-logger skill into a standalone public Gemini CLI extension called 'remember' (v0.1.0). Cleaned up all local references in the gemini-workbench codebase and updated the workbench initialization script to automatically install the new extension from GitHub.
+
+### 🚀 Suggested Next Steps
+None, task completed
+
+---
+
 ## [4/5/2026] [gemini-workbench] Fixed Broken Roadmap Symlinks
 **Timestamp:** `2026-04-05 16:45`
 **Project:** `gemini-workbench`
