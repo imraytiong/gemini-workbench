@@ -3,7 +3,6 @@
 ## NOW
 *Active milestones and imminent capabilities.*
 - [**Portable Safety Policies**](milestones/portable_safety_policies.md): Transitioning workspace-specific safety policies.
-- [**Roadmap Architect**](milestones/roadmap_architect.md): Building the strategy-to-execution skill.
 
 ## SOON
 *Priority features and technical debt (1-3 month horizon).*
@@ -13,6 +12,10 @@
 *Long-term vision and conceptually "fuzzy" ideas.*
 - **Container Runtime Resiliency**: Podman auto-recovery, hard resets, or seamless switching to Docker. (Moved out of immediate scope due to environmental flakiness).
 
+## COMPLETED
+*Historical record of achievements.*
+
+- [**Conductor Roadmap Flow**](milestones/conductor_roadmap_flow.md): Implementing dynamic flow and timestamping for the roadmap skill. (Completed: 2026-04-05 10:00)
 ---
 ## Categories
 - **Capabilities**: New features and functionality.
