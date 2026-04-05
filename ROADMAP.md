@@ -15,6 +15,7 @@
 ## COMPLETED
 *Historical record of achievements.*
 
+- [**Conductor Roadmap Extension Scaffolding**](milestones/conductor_roadmap_extension_scaffolding.md): Summary pending update. (Completed: 2026-04-05 10:00)
 - [**Conductor Roadmap Refinement**](milestones/conductor_roadmap_refinement.md): Standardizing existing milestones and tracks to the new dynamic flow format. (Completed: 2026-04-05 10:00)
 - [**Conductor Roadmap Flow**](milestones/conductor_roadmap_flow.md): Implementing dynamic flow and timestamping for the roadmap skill. (Completed: 2026-04-05 10:00)
 

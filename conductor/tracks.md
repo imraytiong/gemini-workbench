@@ -10,3 +10,4 @@ This file tracks all major tracks for the project. Each track has its own detail
 - [**Privacy & Security Sanitization**](./tracks/privacy-security-sanitization/index.md): [Description of this track]
 - [**Dynamic Roadmap Flow Implementation**](./tracks/dynamic-roadmap-flow/index.md): [Description of this track]
 - [**Conductor Roadmap Refinement and Alignment**](./tracks/conductor-roadmap-refinement/index.md): [Description of this track]
+- [**Conductor Roadmap Extension Scaffolding**](./tracks/conductor-roadmap-extension-scaffolding/index.md): [Description of this track]
