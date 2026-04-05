@@ -10,12 +10,14 @@
 
 ## LATER
 *Long-term vision and conceptually "fuzzy" ideas.*
-- **Container Runtime Resiliency**: Podman auto-recovery, hard resets, or seamless switching to Docker. (Moved out of immediate scope due to environmental flakiness).
+- [**Podman Auto-Recovery**](milestones/podman_auto_recovery.md): Resiliency for the container runtime through auto-recovery and resets.
 
 ## COMPLETED
 *Historical record of achievements.*
 
+- [**Conductor Roadmap Refinement**](milestones/conductor_roadmap_refinement.md): Standardizing existing milestones and tracks to the new dynamic flow format. (Completed: 2026-04-05 10:00)
 - [**Conductor Roadmap Flow**](milestones/conductor_roadmap_flow.md): Implementing dynamic flow and timestamping for the roadmap skill. (Completed: 2026-04-05 10:00)
+
 ---
 ## Categories
 - **Capabilities**: New features and functionality.

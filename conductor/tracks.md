@@ -9,3 +9,4 @@ This file tracks all major tracks for the project. Each track has its own detail
 - [**Remove Flaky Podman Recovery**](./tracks/remove-flaky-podman-recovery/index.md): [Description of this track]
 - [**Privacy & Security Sanitization**](./tracks/privacy-security-sanitization/index.md): [Description of this track]
 - [**Dynamic Roadmap Flow Implementation**](./tracks/dynamic-roadmap-flow/index.md): [Description of this track]
+- [**Conductor Roadmap Refinement and Alignment**](./tracks/conductor-roadmap-refinement/index.md): [Description of this track]
