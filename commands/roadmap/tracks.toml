@@ -1,6 +1,0 @@
-description = "Generate Conductor tracks (e.g., /roadmap:tracks <id> [title])"
-prompt = """
-!{node ~/.gemini/skills/roadmap-architect/scripts/generate_tracks.cjs {{args}}}
-
-The track generation script has completed. Please review the newly created Conductor track and let me know if it requires any updates to its spec.md or plan.md.
-"""
