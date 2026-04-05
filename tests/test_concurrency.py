@@ -6,7 +6,7 @@ import pytest
 import shutil
 
 # Path to the log script
-LOG_SCRIPT = "skills/session-logger/scripts/log_session.cjs"
+LOG_SCRIPT = os.path.expanduser("~/.gemini/extensions/remember/skills/remember/scripts/log_session.cjs")
 
 def run_log_session(title, summary, next_steps, cwd, plan="", outcome=""):
     env = os.environ.copy()

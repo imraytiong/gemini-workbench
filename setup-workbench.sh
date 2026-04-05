@@ -109,17 +109,6 @@ for project in "$PROJECTS_ROOT"/*; do
     fi
 done
 
-# 4. Register Projects
-echo "Registering projects with Gemini CLI..."
-for project in "$WORKBENCH_ROOT" "$PROJECTS_ROOT"; do
-    if ! gemini project list | grep -q "$project"; then
-        echo "Adding $project to Gemini CLI..."
-        gemini project add "$project"
-    else
-        echo "Project $project already registered."
-    fi
-done
-
 # Ensure Git trusts these directories (prevents "dubious ownership" errors)
 for dir in "$WORKBENCH_ROOT" "$PROJECTS_ROOT"; do
     if ! git config --global --get-all safe.directory | grep -q "$dir"; then
@@ -128,17 +117,18 @@ for dir in "$WORKBENCH_ROOT" "$PROJECTS_ROOT"; do
     fi
 done
 
-# 5. Conductor Default Check
-echo "Ensuring Conductor is initialized for registered projects..."
-for project in "$WORKBENCH_ROOT" "$PROJECTS_ROOT"; do
-    if [ -d "$project" ]; then
-        if [ ! -d "$project/conductor" ]; then
-            echo "Conductor not found in $(basename "$project")."
-            # Launch the interactive setup script
-            bash "$WORKBENCH_ROOT/bin/conductor-init" "$project" || true
-        else
-            echo "Conductor already initialized in $(basename "$project")."
-        fi
+# 4. Gemini Extensions Check
+echo "Checking Gemini extensions..."
+EXTENSIONS=("conductor:https://github.com/gemini-cli-extensions/conductor" "conductor-roadmap:https://github.com/imraytiong/conductor-roadmap-extension" "remember:https://github.com/imraytiong/remember-extension")
+
+for entry in "${EXTENSIONS[@]}"; do
+    NAME="${entry%%:*}"
+    URL="${entry#*:}"
+    if ! gemini extension list -o json 2>&1 | grep -q "\"name\": \"$NAME\""; then
+        echo "Installing $NAME extension..."
+        gemini extension install "$URL" --consent
+    else
+        echo "Extension $NAME is already installed."
     fi
 done
 
@@ -150,7 +140,7 @@ if [ "$IS_SANDBOX" = false ]; then
         podman rm -f "$CONTAINER"
     fi
 
-    # 6. Build Sandbox Image
+    # 7. Build Sandbox Image
     BUILD_SANDBOX=true
     if [[ "$1" == "--no-build" ]]; then
         BUILD_SANDBOX=false
@@ -162,7 +152,9 @@ if [ "$IS_SANDBOX" = false ]; then
     elif [ "$BUILD_SANDBOX" = false ]; then
         echo "Skipping sandbox image build as requested."
     fi
-# 7. Configure PATH Instructions
+fi
+
+# 8. Configure PATH Instructions
 echo ""
 echo "--- Setup Complete ---"
 echo "To finish the setup, add the workbench 'bin' directory to your PATH."

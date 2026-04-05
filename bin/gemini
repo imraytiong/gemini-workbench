@@ -41,6 +41,15 @@ HAS_PROMPT=false
 SKIP_RESTORE=false
 NEW_ARGS=()
 
+# Extension and Project management commands should ALWAYS bypass sandboxing and restoration
+for arg in "$@"; do
+    if [[ "$arg" == "extension" || "$arg" == "project" ]]; then
+        NOSANDBOX=true
+        SKIP_RESTORE=true
+        break
+    fi
+done
+
 for arg in "$@"; do
     if [[ "$arg" == "--nosandbox" || "$arg" == "-nosandbox" ]]; then
         NOSANDBOX=true
