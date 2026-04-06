@@ -11,7 +11,7 @@ Transition the Gemini Workbench from a private, personal utility into a safe, ea
 - [x] [Privacy & Security Sanitization](conductor/tracks/privacy-security-sanitization/index.md)
 - [x] [Streamlined Onboarding & Installation](conductor/tracks/onboarding-installation/index.md)
 - [x] [Quality Assurance & CI/CD](conductor/tracks/qa-ci-cd/index.md)
-- [ ] [Remove Flaky Podman Recovery](conductor/tracks/remove-flaky-podman-recovery/index.md)
+- [x] [Remove Flaky Podman Recovery](conductor/tracks/remove-flaky-podman-recovery/index.md)
 - [ ] [Community & Governance](conductor/tracks/community-governance/index.md)
 - [ ] [Final Release Polish](conductor/tracks/final-release-polish/index.md)
 
@@ -21,7 +21,7 @@ Transition the Gemini Workbench from a private, personal utility into a safe, ea
 - [ ] The repository includes a valid open-source License, Contributing guidelines, and Security policy.
 - [ ] GitHub Actions run tests automatically on new PRs.
 - [ ] The workbench is provided to the user using idiomatic Gemini CLI integration methods.
-- [ ] Flaky Podman auto-recovery code has been completely removed.
+- [x] Flaky Podman auto-recovery code has been completely removed.
 - [ ] Documentation is highly readable for both developers and their Gemini CLI agents.
 
 ## Completed Conductor Tracks
