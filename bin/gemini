@@ -101,7 +101,7 @@ if [ -t 0 ] && [ "$HAS_RESUME" = false ] && [ "$HAS_PROMPT" = false ] && [ "$SKI
             *)
                 if [ -n "$LATEST_SUMMARY" ]; then
                     echo "Restoring from summary: $LATEST_SUMMARY"
-                    SUMMARY_PROMPT="Please read $LATEST_SUMMARY to recover the context of our last session. Acknowledge the current status and suggest the first task from the 'Consolidated Pending Tasks' list."
+                    SUMMARY_PROMPT="Please read $LATEST_SUMMARY and review the 'remember' skill's history to fully recover the context of our last session. Acknowledge the current status, then check ROADMAP.md and the conductor/ directory to determine and suggest the next strategic task."
                     NEW_ARGS=("--prompt-interactive" "$SUMMARY_PROMPT" "${NEW_ARGS[@]}")
                 else
                     echo "No summary found. Starting fresh session..."
