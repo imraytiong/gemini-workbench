@@ -44,8 +44,7 @@ def test_isolate_path_translation_dry_run():
         "PODMAN": "echo_podman", # Force use of a specific string to verify
         "USER": "testuser"
     }
-    # Mocking environment to avoid real podman machine start
-    # We need to bypass the recursion check
+    # Mocking environment to bypass the recursion check
     os.environ["GEMINI_CLI"] = "0"
     os.environ["GEMINI_SANDBOX"] = "0"
 
@@ -56,8 +55,6 @@ def test_isolate_path_translation_dry_run():
     result = run_isolate(["python3", "--version"], env_vars=env_vars, cwd=cwd)
     
     # Verify the output contains the translated path
-    # Host: /path/to/projects/brain
-    # Container: /home/<user>/projects/brain
     assert f"-w /home/{host_user}/projects/brain" in result.stdout
     assert "gemini-sandbox-container python3 --version" in result.stdout
 
@@ -66,3 +63,22 @@ def test_isolate_no_args_defaults_to_gemini():
     env_vars = {"DRY_RUN": "1", "GEMINI_CLI": "0"}
     result = run_isolate([], env_vars=env_vars)
     assert "gemini-sandbox-container gemini" in result.stdout
+
+def test_isolate_unrecognized_command_defaults_to_gemini():
+    """Verify that an unrecognized command is passed as an argument to gemini."""
+    env_vars = {"DRY_RUN": "1", "GEMINI_CLI": "0"}
+    result = run_isolate(["unknown_command", "arg1"], env_vars=env_vars)
+    assert "gemini-sandbox-container gemini unknown_command arg1" in result.stdout
+
+def test_isolate_known_shell_command_direct_execution():
+    """Verify that a known shell command (e.g., 'git') is executed directly, not via gemini."""
+    env_vars = {"DRY_RUN": "1", "GEMINI_CLI": "0"}
+    result = run_isolate(["git", "status"], env_vars=env_vars)
+    assert "gemini-sandbox-container git status" in result.stdout
+    assert "gemini git status" not in result.stdout
+
+def test_isolate_absolute_path_direct_execution():
+    """Verify that an absolute path is executed directly."""
+    env_vars = {"DRY_RUN": "1", "GEMINI_CLI": "0"}
+    result = run_isolate(["/bin/bash", "-c", "echo test"], env_vars=env_vars)
+    assert "gemini-sandbox-container /bin/bash -c echo test" in result.stdout
