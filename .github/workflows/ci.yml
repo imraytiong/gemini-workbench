@@ -7,8 +7,31 @@ on:
     branches: [ main ]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './bin'
+      - name: ShellCheck (Root)
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: '.'
+          check_together: 'yes'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Ruff
+        run: pip install ruff
+      - name: Run Ruff
+        run: ruff check .
+
   test:
     runs-on: ubuntu-latest
+    needs: lint
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -16,6 +39,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dependencies
-        run: pip install pytest
-      - name: Run tests
-        run: pytest tests/
+        run: pip install pytest pytest-cov
+      - name: Run tests with coverage
+        run: pytest --cov=tests/ --cov-report=xml tests/
+
