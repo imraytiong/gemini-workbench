@@ -2,11 +2,10 @@
 
 ## NOW
 *Active milestones and imminent capabilities.*
-- [**Portable Safety Policies**](milestones/portable_safety_policies.md): Transitioning workspace-specific safety policies.
+- [**Release 1.1 - Open Source & Team Readiness**](milestones/release_1_1.md): Transition from a private tool to a public, team-ready, open-source environment.
 
 ## SOON
 *Priority features and technical debt (1-3 month horizon).*
-- [**Release 1.1 - Open Source & Team Readiness**](milestones/release_1_1.md): Transition from a private tool to a public, team-ready, open-source environment.
 
 ## LATER
 *Long-term vision and conceptually "fuzzy" ideas.*
@@ -15,6 +14,7 @@
 ## COMPLETED
 *Historical record of achievements.*
 
+- [**Portable Safety Policies**](milestones/portable_safety_policies.md): Transitioning workspace-specific safety policies. (Completed: 2026-04-06 20:00)
 - [**Conductor Roadmap Extension Scaffolding**](milestones/conductor_roadmap_extension_scaffolding.md): Summary pending update. (Completed: 2026-04-05 10:00) (Completed: 2026-04-05 11:00)
 - [**Conductor Roadmap Refinement**](milestones/conductor_roadmap_refinement.md): Standardizing existing milestones and tracks to the new dynamic flow format. (Completed: 2026-04-05 10:00)
 - [**Conductor Roadmap Flow**](milestones/conductor_roadmap_flow.md): Implementing dynamic flow and timestamping for the roadmap skill. (Completed: 2026-04-05 10:00)
