@@ -5,6 +5,6 @@
 - [x] Enable test execution on pull requests.
 
 ## Phase 2: Testing & Coverage
-- [ ] Add unit tests for `setup-workbench.sh`.
+- [x] Add unit tests for `setup-workbench.sh`. 7405086
 - [ ] Improve integration test coverage for sandbox lifecycle.
 - [ ] Add linting/static analysis job.
