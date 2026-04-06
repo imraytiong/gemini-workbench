@@ -15,17 +15,34 @@ if [ "$GEMINI_SANDBOX" = "1" ] || [ "$GEMINI_CLI" = "1" ] || [ -f /.dockerenv ] 
     echo "Running inside a sandbox environment. Skipping Podman-specific checks."
 fi
 
-for cmd in node npm git gemini; do
+# Define the Gemini path
+if [ -z "$GEMINI_EXEC" ]; then
+    if command -v gemini &> /dev/null; then
+        GEMINI_EXEC="gemini"
+    else
+        echo "Error: gemini command not found in PATH."
+        echo "If your Gemini CLI is configured as an alias, please provide the absolute"
+        echo "path using the GEMINI_EXEC environment variable:"
+        echo "  GEMINI_EXEC=/path/to/gemini ./setup-workbench.sh"
+        exit 1
+    fi
+fi
+
+for cmd in node npm git; do
     if ! command -v $cmd &> /dev/null; then
         echo "Error: $cmd is not installed."
         case $cmd in
             node|npm) echo "Please install Node.js/npm (e.g., 'brew install node')." ;;
             git) echo "Please install Git (e.g., 'brew install git')." ;;
-            gemini) echo "Please install the Gemini CLI via npm." ;;
         esac
         exit 1
     fi
 done
+
+if ! command -v "$GEMINI_EXEC" &> /dev/null; then
+    echo "Error: Gemini CLI not found or not executable at $GEMINI_EXEC."
+    exit 1
+fi
 
 if [ "$IS_SANDBOX" = false ]; then
     if ! command -v podman &> /dev/null; then
@@ -124,9 +141,9 @@ EXTENSIONS=("conductor:https://github.com/gemini-cli-extensions/conductor" "cond
 for entry in "${EXTENSIONS[@]}"; do
     NAME="${entry%%:*}"
     URL="${entry#*:}"
-    if ! gemini extension list -o json 2>&1 | grep -q "\"name\": \"$NAME\""; then
+    if ! "$GEMINI_EXEC" extension list -o json 2>&1 | grep -q "\"name\": \"$NAME\""; then
         echo "Installing $NAME extension..."
-        gemini extension install "$URL" --consent
+        "$GEMINI_EXEC" extension install "$URL" --consent
     else
         echo "Extension $NAME is already installed."
     fi
@@ -164,5 +181,5 @@ echo "export PATH=\"\$PATH:$WORKBENCH_ROOT/bin\""
 echo ""
 echo "Then, restart your terminal or run: source ~/.zshrc (or ~/.bashrc)"
 echo ""
-echo "Finally, make sure to authenticate by running: gemini login"
+echo "Finally, make sure to authenticate by running: $GEMINI_EXEC login"
 echo "----------------------"
