@@ -12,13 +12,13 @@ Transition the Gemini Workbench from a private, personal utility into a safe, ea
 - [x] [Streamlined Onboarding & Installation](conductor/tracks/onboarding-installation/index.md)
 - [x] [Quality Assurance & CI/CD](conductor/tracks/qa-ci-cd/index.md)
 - [x] [Remove Flaky Podman Recovery](conductor/tracks/remove-flaky-podman-recovery/index.md)
-- [ ] [Community & Governance](conductor/tracks/community-governance/index.md)
+- [x] [Community & Governance](conductor/tracks/community-governance/index.md)
 - [ ] [Final Release Polish](conductor/tracks/final-release-polish/index.md)
 
 ## Success Criteria
 - [ ] The project can be cloned and fully installed on a fresh machine seamlessly.
 - [ ] Zero private keys, hardcoded paths, or sensitive data exist in the codebase.
-- [ ] The repository includes a valid open-source License, Contributing guidelines, and Security policy.
+- [x] The repository includes a valid open-source License, Contributing guidelines, and Security policy.
 - [ ] GitHub Actions run tests automatically on new PRs.
 - [ ] The workbench is provided to the user using idiomatic Gemini CLI integration methods.
 - [x] Flaky Podman auto-recovery code has been completely removed.
