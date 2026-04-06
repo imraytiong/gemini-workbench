@@ -9,7 +9,7 @@ Transition the Gemini Workbench from a private, personal utility into a safe, ea
 ## Prioritized Tracks
 *A list of Conductor tracks needed to fulfill the milestone.*
 - [x] [Privacy & Security Sanitization](conductor/tracks/privacy-security-sanitization/index.md)
-- [ ] [Streamlined Onboarding & Installation](conductor/tracks/onboarding-installation/index.md)
+- [x] [Streamlined Onboarding & Installation](conductor/tracks/onboarding-installation/index.md)
 - [ ] [Quality Assurance & CI/CD](conductor/tracks/qa-ci-cd/index.md)
 - [ ] [Remove Flaky Podman Recovery](conductor/tracks/remove-flaky-podman-recovery/index.md)
 - [ ] [Community & Governance](conductor/tracks/community-governance/index.md)
