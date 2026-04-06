@@ -5,6 +5,7 @@
 
 ## SOON
 *Priority features and technical debt (1-3 month horizon).*
+- [**Release 1.2 - The Skills Expansion**](milestones/release_1_2.md): Summary pending update.
 
 ## LATER
 *Long-term vision and conceptually "fuzzy" ideas.*

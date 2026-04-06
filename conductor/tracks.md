@@ -13,3 +13,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 - [**Conductor Roadmap Extension Scaffolding**](./tracks/conductor-roadmap-extension-scaffolding/index.md): [Description of this track]
 
 
+
+- [**Community Skills Audit & Integration**](./tracks/community-skills-audit/index.md): [Description of this track]
