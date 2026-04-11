@@ -1,6 +1,30 @@
 # Gemini Session History
 
 
+## [4/11/2026] [gemini-workbench] Transition to Native Default Execution
+**Timestamp:** `2026-04-11 18:14`
+**Project:** `gemini-workbench`
+
+### 📋 Proposed Plan
+Invert the default behavior of the workbench wrapper to use native execution by default, addressing portability concerns and reducing startup overhead. The Podman sandbox will be retained as an opt-in feature via a flag. This involves updating the wrapper script, making setup dependencies optional, and aligning documentation.
+
+### ✅ Execution & Validation
+Successfully implemented the native default execution. All tests pass, and the changes have been committed and pushed to the repository.
+
+### 📝 Summary
+- Refactored the bin/gemini wrapper to default to native execution (NOSANDBOX=true).
+- Added a --sandbox / -s flag to explicitly invoke the gemini-isolate wrapper.
+- Made Podman an optional dependency in setup-workbench.sh and setup-machine.sh.
+- Updated project documentation (GEMINI.md, conductor/product.md, conductor/tech-stack.md) to reflect the new architecture.
+- Added tests to verify the native default behavior in tests/test_isolate.py.
+- Created a new milestone (Native Execution & Portability) and a Conductor track to document the changes.
+
+### 🚀 Suggested Next Steps
+- Review the completed 'Transition to Native Default Execution' track and close it out.
+- Update the 'Release 1.2 - The Skills Expansion' milestone status.
+
+---
+
 ## [4/6/2026] [gemini-workbench] Session Cleared
 **Timestamp:** `2026-04-06 04:35`
 **Project:** `gemini-workbench`
