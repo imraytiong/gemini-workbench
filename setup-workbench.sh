@@ -46,11 +46,16 @@ fi
 
 if [ "$IS_SANDBOX" = false ]; then
     if ! command -v podman &> /dev/null; then
-        echo "Error: Podman is not installed. Please install Podman Desktop or podman CLI."
-        exit 1
+        echo "Warning: Podman is not installed. The optional sandbox environment will not be available."
+        echo "You can still use the Gemini Workbench natively."
+        HAS_PODMAN=false
+    else
+        HAS_PODMAN=true
     fi
+else
+    HAS_PODMAN=false
 fi
-echo "Prerequisites met."
+echo "Prerequisites met (Podman is optional)."
 
 # 2. Workspace Root Detection
 WORKBENCH_ROOT=$(cd "$(dirname "$0")" && pwd)
@@ -149,7 +154,7 @@ for entry in "${EXTENSIONS[@]}"; do
     fi
 done
 
-if [ "$IS_SANDBOX" = false ]; then
+if [ "$HAS_PODMAN" = true ]; then
     # Remove existing container to ensure new environment variables are applied
     CONTAINER="gemini-sandbox-container"
     if podman ps -a --format "{{.Names}}" | grep -q "^$CONTAINER$"; then
@@ -163,12 +168,14 @@ if [ "$IS_SANDBOX" = false ]; then
         BUILD_SANDBOX=false
     fi
 
-    if [ "$IS_SANDBOX" = false ] && [ "$BUILD_SANDBOX" = true ]; then
+    if [ "$BUILD_SANDBOX" = true ]; then
         echo "Building Podman sandbox image..."
         bash "$WORKBENCH_ROOT/bin/build-sandbox"
-    elif [ "$BUILD_SANDBOX" = false ]; then
+    else
         echo "Skipping sandbox image build as requested."
     fi
+else
+    echo "Skipping optional sandbox container setup (Podman not available or in sandbox)."
 fi
 
 # 8. Configure PATH Instructions

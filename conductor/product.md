@@ -8,7 +8,7 @@ To provide a comprehensive, ready-to-use development environment for maximizing 
 - **Agentic Workshop:** Provide a curated set of common tools, settings, and baseline skills to jumpstart agent development.
 - **ADK Focus:** Prioritize initial development workflows for building agents using the Agent Development Kit (ADK).
 - **Expandability:** Design the workbench to easily accommodate new skills, tools, and custom CLI extensions.
-- **Full Isolation:** Ensure consistent and isolated development environments through containerization.
+- **Optional Isolation:** Ensure consistent and isolated development environments through containerization when required for security or consistency. Native execution is the default for maximum portability.
 
 ## Target Audience
 - Developers building AI agents with the Gemini CLI and ADK.

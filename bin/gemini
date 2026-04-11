@@ -34,8 +34,8 @@ if [ -z "$REAL_GEMINI" ]; then
     fi
 fi
 
-# 1. Check for flags that should skip restoration
-NOSANDBOX=false
+# 1. Check for flags that should enable the sandbox or skip restoration
+NOSANDBOX=true
 HAS_RESUME=false
 HAS_PROMPT=false
 SKIP_RESTORE=false
@@ -51,7 +51,10 @@ for arg in "$@"; do
 done
 
 for arg in "$@"; do
-    if [[ "$arg" == "--nosandbox" || "$arg" == "-nosandbox" ]]; then
+    if [[ "$arg" == "--sandbox" || "$arg" == "-s" ]]; then
+        NOSANDBOX=false
+    elif [[ "$arg" == "--nosandbox" || "$arg" == "-nosandbox" ]]; then
+        # Kept for backwards compatibility but it is the default now
         NOSANDBOX=true
     elif [[ "$arg" == "--resume" || "$arg" == "-r" ]]; then
         HAS_RESUME=true

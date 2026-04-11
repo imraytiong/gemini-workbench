@@ -2,6 +2,7 @@
 
 ## NOW
 *Active milestones and imminent capabilities.*
+- [**Native Execution & Portability**](milestones/native_execution_portability.md): Transitioning the workbench to be native-by-default for improved portability, retaining the sandbox as an opt-in feature.
 
 ## SOON
 *Priority features and technical debt (1-3 month horizon).*

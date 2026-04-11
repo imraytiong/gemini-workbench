@@ -6,7 +6,7 @@
 - **Python:** Primary language for project-level testing and automation scripts.
 
 ## Frameworks & Tools
-- **Podman:** Containerization engine providing full Ubuntu-based environment isolation.
+- **Podman:** Optional containerization engine providing full Ubuntu-based environment isolation for high-risk agentic tasks.
 - **Gemini CLI:** The central tool that the workbench is built to support and extend.
 - **ADK (Agent Development Kit):** Used for building sophisticated AI agents within the workbench.
 

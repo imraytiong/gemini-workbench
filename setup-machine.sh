@@ -16,8 +16,12 @@ fi
 
 # 2. Install Core Tools (CLI)
 echo "Installing core tools via Homebrew..."
-brew install node podman glow nano
-brew install --cask podman-desktop
+brew install node glow nano
+
+# Attempt to install Podman, but do not fail if it's restricted
+echo "Attempting to install optional sandbox dependency: Podman..."
+brew install podman || echo "Warning: Could not install Podman. Sandbox will not be available."
+brew install --cask podman-desktop || echo "Warning: Could not install Podman Desktop."
 
 # 3. Configure Nano (Markdown Support)
 echo "Configuring Nano..."

@@ -11,7 +11,8 @@ These directives are absolute and override all general guidelines. They govern h
 3. **Always Remember Before Shutdown:** Before completing a final task or concluding a session, you MUST invoke the `remember` skill to log our session state and synchronize the history. This ensures a clean context handoff for the next session.
 
 ## Core Architecture
-- **Full Isolation:** Use Podman for full Ubuntu containerized isolation by default for all workbench sessions.
+- **Native by Default:** The workbench defaults to native execution to ensure maximum portability across corporate and restricted environments.
+- **Optional Isolation:** Use the `--sandbox` (or `-s`) flag to opt-in to full Ubuntu containerized isolation via Podman for high-risk agentic tasks.
 - **Native Fallback:** The `gemini-isolate` wrapper handles container lifecycle, with native Node.js execution only when already inside the sandbox.
 - **Session Continuity:** Session logging and history are handled by the `remember` extension.
 
